@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Git Practice</title>
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, button { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .page { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before { content: ""; width: 38px; height: 2px; background: var(--mint-dark); }
+
+    h1, h2, h3 { margin: 0; line-height: 1.18; letter-spacing: 0; }
+
+    h1 {
+      max-width: 10ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.2vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 680px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary { background: rgba(255, 255, 255, .65); color: var(--ink); }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen { overflow: hidden; border: 12px solid #22242b; border-radius: 22px 22px 8px 8px; background: #fefefe; }
+    .screen-top { display: flex; align-items: center; gap: 7px; padding: 12px; border-bottom: 1px solid var(--line); background: #f8f6f1; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rose); }
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt { color: var(--rose-dark); font-weight: 800; }
+    .base { height: 24px; width: 82%; margin: 0 auto; border-radius: 0 0 28px 28px; background: linear-gradient(180deg, #dfe2e8, #f5f6f8); box-shadow: 0 16px 30px rgba(34, 38, 48, .11); }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+    .toc a { flex: 0 0 auto; padding: 7px 12px; border: 1px solid transparent; border-radius: 999px; color: var(--ink); font-size: .9rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+    .toc a:hover { border-color: rgba(33, 35, 42, .2); background: #fff; }
+
+    section { padding: 74px 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-label { display: inline-flex; margin-bottom: 10px; color: var(--rose-dark); font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .lead { margin: 0; color: var(--muted); font-size: 1rem; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255, 255, 255, .66); box-shadow: 0 8px 22px rgba(34, 38, 48, .05); }
+    .card p { margin: 10px 0 0; color: var(--muted); }
+    .tag { display: inline-flex; margin-bottom: 10px; padding: 4px 9px; border-radius: 999px; background: var(--mint); color: var(--mint-dark); font-size: .75rem; font-weight: 900; }
+
+    .command-block { overflow: hidden; margin: 16px 0; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 10px 26px rgba(34, 38, 48, .06); }
+    .command-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border-bottom: 1px solid var(--line); background: #f7f5ef; font-size: .86rem; font-weight: 900; }
+    .copy-button { border: 1px solid rgba(33, 35, 42, .18); border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; font-size: .78rem; font-weight: 900; padding: 6px 10px; }
+    .copy-button:hover { background: var(--mint); }
+
+    pre { overflow-x: auto; margin: 0; padding: 18px; background: #22242b; color: #f8f6f1; font-size: .9rem; line-height: 1.75; }
+
+    .note { margin-top: 16px; padding: 18px 20px; border-left: 5px solid var(--mint-dark); border-radius: var(--radius); background: rgba(255, 255, 255, .7); box-shadow: 0 8px 22px rgba(34, 38, 48, .05); }
+    .note strong { display: block; margin-bottom: 6px; }
+    .note p { margin: 0; color: var(--muted); }
+
+    .option-table { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255, 255, 255, .72); box-shadow: 0 8px 22px rgba(34, 38, 48, .05); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #f7f5ef; font-size: .86rem; }
+    td { color: #424650; }
+
+    footer { padding: 36px 0 56px; color: var(--muted); font-size: .92rem; }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 42px; }
+      .machine { padding: 16px; }
+      .home-link { position: absolute; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .command-title { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Git Practice</p>
+      <h1>変更を、履歴として渡す。</h1>
+      <p class="hero-text">
+        GitHub上の練習リポジトリを使い、clone、ブランチ作成、HTML修正、commit、push、Pull Requestまでを体験します。
+        GitLabとの違いは最後に紹介します。手元のGitコマンドはほぼ同じです。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#clone">cloneから始める</a>
+        <a class="button secondary" href="https://github.com/akilab/mac-git-practice-lab">練習リポジトリを見る</a>
+      </div>
+    </div>
+
+    <div class="machine" aria-label="Git練習のTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> git clone https://github.com/akilab/mac-git-practice-lab.git<br>
+          <span class="prompt">MacBook-Air %</span> cd mac-git-practice-lab<br>
+          <span class="prompt">MacBook-Air %</span> git switch -c feature/update-akr<br><br>
+          <span class="prompt">MacBook-Air %</span> open members/akr.html<br>
+          <span class="prompt">MacBook-Air %</span> git diff<br>
+          <span class="prompt">MacBook-Air %</span> git add members/akr.html<br>
+          <span class="prompt">MacBook-Air %</span> git commit -m "Update akr profile"<br>
+          <span class="prompt">MacBook-Air %</span> git push -u origin feature/update-akr
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#concept">考え方</a>
+      <a href="#clone">clone</a>
+      <a href="#branch">branch</a>
+      <a href="#edit">編集</a>
+      <a href="#stage">stage</a>
+      <a href="#commit">commit</a>
+      <a href="#push">push</a>
+      <a href="#pr">Pull Request</a>
+      <a href="#after">取り込み後</a>
+      <a href="#trouble">困った時</a>
+      <a href="#gitlab">GitLab</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="concept">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Concept</span>
+            <h2>GitとGitHubを分けて考える</h2>
+          </div>
+          <p class="lead">Gitは手元で履歴を作るコマンド、GitHubはリモートリポジトリを共有するWebサービスです。</p>
+        </div>
+
+        <div class="grid three">
+          <article class="card"><span class="tag">Git</span><h3>手元の履歴管理</h3><p>変更をcommitとして保存し、過去の状態を追えるようにします。</p></article>
+          <article class="card"><span class="tag">GitHub</span><h3>共有とレビュー</h3><p>pushされたブランチを見て、Pull Requestで取り込みます。</p></article>
+          <article class="card"><span class="tag">Practice</span><h3>自分のHTMLだけ編集</h3><p>今回は <code>members/</code> の自分用ファイルだけを編集します。</p></article>
+        </div>
+
+        <div class="note">
+          <strong>今回の作業の流れ</strong>
+          <p>共有元の <code>main</code> を直接触らず、自分用ブランチで変更を作り、そのブランチをGitHubへ送ります。その後、GitHub上でPull Requestを作り、管理者に <code>main</code> へ取り込んでもらいます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="clone">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Clone</span><h2>リポジトリを手元にコピーする</h2></div>
+          <p class="lead">最初は <code>~/practice</code> に練習リポジトリをcloneします。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>cloneする</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>mkdir -p ~/practice
+cd ~/practice
+git clone https://github.com/akilab/mac-git-practice-lab.git
+cd mac-git-practice-lab</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>状態を確認する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git status
+git remote -v
+git log --oneline</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>origin</code> とは何か</strong>
+          <p><code>git clone</code> すると、clone元のGitHubリポジトリに <code>origin</code> という名前が自動で付きます。つまり <code>origin</code> は「GitHub上のこの練習リポジトリ」を指す短い名前です。確認するには <code>git remote -v</code> を使います。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="branch">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Branch</span><h2>作業ブランチを作る</h2></div>
+          <p class="lead"><code>main</code> で直接作業せず、自分用のブランチを作ります。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>名前別のブランチ例</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git switch -c feature/update-akr
+# または
+git switch -c feature/update-rui
+# または
+git switch -c feature/update-ayu
+# または
+git switch -c feature/update-rie</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>ブランチ名は作業内容が分かる名前にする</strong>
+          <p><code>feature/update-akr</code> のように、何をするブランチか分かる名前にします。</p>
+        </div>
+
+        <div class="grid two" style="margin-top:16px;">
+          <article class="card">
+            <span class="tag">switch</span>
+            <h3><code>git switch -c</code> の意味</h3>
+            <p><code>switch</code> はブランチを切り替えるコマンドです。<code>-c</code> を付けると、新しいブランチを作成して、そのブランチへ切り替えます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">feature/</span>
+            <h3>必須ではなく命名ルール</h3>
+            <p><code>feature/</code> は必須ではありません。<code>git switch -c update-akr</code> でも動きます。ただし、作業用ブランチだと分かりやすくするために <code>feature/</code> を付ける現場が多いです。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>checkoutで同じことをする場合</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git checkout -b feature/update-akr</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>checkout</code> でもブランチは作れます</strong>
+          <p>昔からよく使われていた形は <code>git checkout -b ブランチ名</code> です。現在は、ブランチ切り替えには <code>git switch</code>、ファイルを戻す操作には <code>git restore</code> と役割を分けて説明されることが増えています。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="edit">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Edit</span><h2>自分のHTMLだけ編集する</h2></div>
+          <p class="lead">受講者ごとのHTMLには質問と回答欄があります。回答欄を編集します。</p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead><tr><th>対象者</th><th>編集するファイル</th><th>開くコマンド</th></tr></thead>
+            <tbody>
+              <tr><td>akr</td><td><code>members/akr.html</code></td><td><code>open members/akr.html</code></td></tr>
+              <tr><td>rui</td><td><code>members/rui.html</code></td><td><code>open members/rui.html</code></td></tr>
+              <tr><td>ayu</td><td><code>members/ayu.html</code></td><td><code>open members/ayu.html</code></td></tr>
+              <tr><td>rie</td><td><code>members/rie.html</code></td><td><code>open members/rie.html</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>編集前後に状態を見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git status
+open members/akr.html
+git status
+git diff</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="stage">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Stage</span><h2>commitする前に、変更を選ぶ</h2></div>
+          <p class="lead">Gitには、作業中の変更をいきなりcommitせず、いったん「commit予定」に入れる場所があります。これがstageです。</p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Working Tree</span>
+            <h3>作業中の場所</h3>
+            <p>エディタでファイルを編集した状態です。まだ履歴には保存されていません。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Staging Area</span>
+            <h3>commit予定の箱</h3>
+            <p><code>git add</code> した変更だけが入ります。次のcommitに含めるものを選ぶ場所です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Repository</span>
+            <h3>履歴として保存</h3>
+            <p><code>git commit</code> すると、stageに入っている変更が履歴として保存されます。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>stageの状態を確認する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git status
+git diff
+git add members/akr.html
+git status
+git diff --staged</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>commitとpushの違い</strong>
+          <p><code>commit</code> は手元のリポジトリに履歴を作る操作です。まだGitHubには送られていません。<code>push</code> は、その手元のcommitをGitHubへ送る操作です。</p>
+        </div>
+
+        <div class="note">
+          <strong>なぜstageがあるのか</strong>
+          <p>作業中の変更の中から「今回のcommitに入れるもの」だけを選べるようにするためです。たとえば、HTMLの回答欄だけをcommitし、メモ書きや一時ファイルは含めない、という判断ができます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="commit">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Commit</span><h2>変更を履歴にする</h2></div>
+          <p class="lead"><code>git add</code> でstageに入れ、<code>git commit</code> でstage内の変更を履歴として保存します。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>addしてcommitする</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git add members/akr.html
+git diff --staged
+git commit -m "Update akr profile"
+git log --oneline</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>git add .</code> は慣れてから</strong>
+          <p><code>git add .</code> は、今いるディレクトリ以下の変更をまとめてcommit対象に入れるコマンドです。便利ですが、不要な一時ファイル、別の人のファイル、まだ確認していない変更まで入ることがあります。最初は <code>git add members/akr.html</code> のようにファイル名を指定し、「何をcommitするのか」を自分で確認する練習にします。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>add前後で何が変わるか見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git diff
+git add members/akr.html
+git diff --staged
+git status</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="push">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Push</span><h2>GitHubへ送る</h2></div>
+          <p class="lead">手元のブランチをGitHubへpushします。初回は <code>-u</code> を付けます。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>pushする</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git push -u origin feature/update-akr</code></pre>
+        </div>
+
+        <p class="lead">ブランチ名を自分のものに変えて実行してください。</p>
+
+        <div class="grid three" style="margin-top:16px;">
+          <article class="card">
+            <span class="tag">push</span>
+            <h3>commitを送る</h3>
+            <p><code>git push</code> は、手元のcommitをリモートリポジトリへ送ります。pushしただけでは、まだ <code>main</code> には取り込まれません。</p>
+          </article>
+          <article class="card">
+            <span class="tag">origin</span>
+            <h3>送り先の名前</h3>
+            <p><code>origin</code> はclone元のGitHubリポジトリについた名前です。つまり「GitHub上の練習リポジトリへ送る」という意味です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">-u</span>
+            <h3>次回の省略設定</h3>
+            <p><code>-u</code> は upstream の設定です。手元のブランチとGitHub上のブランチを対応付け、次回から <code>git push</code> や <code>git pull</code> だけで済むようにします。</p>
+          </article>
+        </div>
+
+        <div class="note">
+          <strong>pushとPull Requestは別の操作</strong>
+          <p><code>git push -u origin feature/update-akr</code> は、作業ブランチをGitHubへ送る操作です。Pull Requestは、その後にGitHubの画面で「このブランチの変更を <code>main</code> に取り込んでください」と依頼する操作です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pr">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Pull Request</span><h2>取り込みを依頼する</h2></div>
+          <p class="lead">push後、GitHub画面でPull Requestを作ります。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Pull Request説明文の例</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>## 変更内容
+- members/akr.html の回答欄を更新しました
+
+## 練習したこと
+- clone
+- branch
+- diff
+- add
+- commit
+- push
+- Pull Request</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="after">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">After Merge</span><h2>取り込まれた後に手元を更新する</h2></div>
+          <p class="lead">Pull Requestが取り込まれたら、手元の <code>main</code> を最新にします。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>mainを更新する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git switch main
+git pull
+git branch -d feature/update-akr</code></pre>
+        </div>
+
+        <div class="grid three" style="margin-top:16px;">
+          <article class="card">
+            <span class="tag">main</span>
+            <h3>共有される本線</h3>
+            <p><code>main</code> はリポジトリの基準になるブランチです。自分の作業ブランチは、<code>main</code> から分かれて作業するための場所です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">switch main</span>
+            <h3>本線へ戻る</h3>
+            <p><code>git switch main</code> は、今いる作業ブランチから <code>main</code> へ戻る操作です。ブランチは複数存在でき、必要に応じて切り替えられます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">pull</span>
+            <h3>取り込み結果を受け取る</h3>
+            <p>Pull Requestが取り込まれると、GitHub上の <code>main</code> が更新されます。<code>git pull</code> で、その更新を手元の <code>main</code> へ持ってきます。</p>
+          </article>
+        </div>
+
+        <div class="note">
+          <strong><code>git branch -d</code> は作業済みブランチの片付け</strong>
+          <p><code>git branch -d feature/update-akr</code> は、手元に残っている作業ブランチを削除します。Pull Requestが取り込まれ、<code>main</code> に変更が入った後なら、その作業ブランチは役目を終えています。削除しても、commit自体は <code>main</code> に残ります。</p>
+        </div>
+
+        <div class="note">
+          <strong>なぜ <code>main</code> へ戻れるのか</strong>
+          <p>ブランチは「別の作業場所」です。<code>feature/update-akr</code> で作業していても、<code>main</code> は消えていません。作業が終わったら <code>git switch main</code> で本線へ戻り、<code>git pull</code> で最新状態にします。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="trouble">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">Troubleshooting</span><h2>実習で詰まりやすいところ</h2></div>
+          <p class="lead">WindowsとWSLを併用する場合、Gitそのものより「どのフォルダを見ているか」「どちらのGitで認証しているか」で詰まることがあります。</p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Folder</span>
+            <h3>VSCodeとTerminalの場所を合わせる</h3>
+            <p>VSCodeで編集しているフォルダと、Terminalで <code>git status</code> しているフォルダが違うと、<code>git diff</code> に変更が出ません。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Auth</span>
+            <h3>WindowsとWSLの認証は別</h3>
+            <p>Windows PowerShellではpushできても、WSLではGitHub認証が未設定でpushできないことがあります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Author</span>
+            <h3>commitには名前とメールが必要</h3>
+            <p><code>Author identity unknown</code> が出たら、Gitの <code>user.name</code> と <code>user.email</code> を設定します。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>今いる場所とブランチを確認する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>pwd
+git rev-parse --show-toplevel
+git branch --show-current
+git status</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>commitの作者情報を設定する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>git config --global user.name "akilab"
+git config --global user.email "4317288+akilab@users.noreply.github.com"
+git config --global user.name
+git config --global user.email</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>GitHubのnoreplyメール</strong>
+          <p><code>4317288+akilab@users.noreply.github.com</code> のようなメールは、GitHubが用意する公開用メールです。commitをGitHubアカウントに紐づけつつ、本物のメールアドレスを公開しないために使います。</p>
+        </div>
+
+        <div class="note">
+          <strong>merge後のDelete branch</strong>
+          <p>Pull Requestをmergeした後にGitHubで表示される <code>Delete branch</code> は、GitHub上の作業ブランチを片付ける操作です。変更内容は <code>main</code> に取り込まれているため、押して問題ありません。手元のブランチは別途 <code>git branch -d feature/update-akr</code> で削除します。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gitlab">
+      <div class="page">
+        <div class="section-head">
+          <div><span class="section-label">GitLab</span><h2>GitHubとGitLabの違い</h2></div>
+          <p class="lead">学習段階ではGitHubを基準に覚えて問題ありません。手元のGitコマンドはほぼ同じです。</p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead><tr><th>項目</th><th>GitHub</th><th>GitLab</th></tr></thead>
+            <tbody>
+              <tr><td>取り込み依頼</td><td>Pull Request</td><td>Merge Request</td></tr>
+              <tr><td>リモートURL</td><td><code>github.com/...</code></td><td><code>gitlab.com/...</code> または会社GitLab</td></tr>
+              <tr><td>CI/CD</td><td>GitHub Actions</td><td>GitLab CI/CD</td></tr>
+              <tr><td>権限のまとまり</td><td>Organization / Team</td><td>Group / Project</td></tr>
+              <tr><td>Gitコマンド</td><td>同じ</td><td>同じ</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page">
+      <p>Mac Git Practice. まずはGitHubで流れを覚え、GitLabでは名称と画面の違いを押さえます。</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyCommand(button) {
+      const block = button.closest(".command-block");
+      const code = block.querySelector("code").innerText;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const original = button.textContent;
+        button.textContent = "コピー済み";
+        window.setTimeout(() => {
+          button.textContent = original;
+        }, 1400);
+      }).catch(() => {
+        button.textContent = "手動でコピー";
+      });
+    }
+
+    document.querySelectorAll(".copy-button").forEach((button) => {
+      button.addEventListener("click", () => copyCommand(button));
+    });
+  </script>
+</body>
+</html>

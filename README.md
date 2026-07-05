@@ -19,10 +19,12 @@ https://akilab.github.io/mac-terminal-practice/
 - `grep` 専用の検索トレーニング
 - `find` 専用のファイル探索トレーニング
 - `wget` / `curl` 専用のHTTP取得トレーニング
+- 環境変数、シェル設定、PATHの基礎トレーニング
+- Git / GitHubのブランチ、commit、push、Pull Request練習
 
 ## 練習できる項目
 
-`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, リダイレクト, パイプ
+`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, `env`, `export`, `alias`, `git`, リダイレクト, パイプ
 
 ## ファイル構成
 
@@ -33,6 +35,8 @@ https://akilab.github.io/mac-terminal-practice/
 - `mac-grep-practice.html`: `grep` 専用の検索練習ページ
 - `mac-find-practice.html`: `find` 専用のファイル探索練習ページ
 - `mac-curl_wget-practice.html`: `wget` / `curl` 専用のHTTP取得練習ページ
+- `mac-env-path-practice.html`: 環境変数、シェル設定、PATH練習ページ
+- `mac-git-practice.html`: Git / GitHub練習ページ
 
 ## 使い方
 

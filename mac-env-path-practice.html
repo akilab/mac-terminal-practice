@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Env / PATH Practice</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, button { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.2vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 680px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .toc a:hover {
+      border-color: rgba(33, 35, 42, .2);
+      background: #fff;
+    }
+
+    section { padding: 74px 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: var(--rose-dark);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--mint-dark);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border-left: 5px solid var(--mint-dark);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .7);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .note strong { display: block; margin-bottom: 6px; }
+    .note p { margin: 0; color: var(--muted); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(34, 38, 48, .06);
+    }
+
+    .command-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f5ef;
+      font-size: .86rem;
+      font-weight: 900;
+    }
+
+    .copy-button {
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 900;
+      padding: 6px 10px;
+    }
+
+    .copy-button:hover { background: var(--mint); }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 18px;
+      background: #22242b;
+      color: #f8f6f1;
+      font-size: .9rem;
+      line-height: 1.75;
+    }
+
+    .option-table {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f5ef;
+      font-size: .86rem;
+    }
+
+    td { color: #424650; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .flow-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+    }
+
+    .flow-item strong {
+      display: block;
+      color: var(--rose-dark);
+    }
+
+    .flow-item span {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    footer {
+      padding: 36px 0 56px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .home-link { position: absolute; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .command-title { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Env / PATH Practice</p>
+      <h1>見えない設定を、見える知識にする。</h1>
+      <p class="hero-text">
+        環境変数、シェル、設定ファイル、<code>export</code>、<code>alias</code>、<code>PATH</code>、UNIX/macOSの標準的なディレクトリ構成を学ぶページです。
+        コマンド例をコピーし、実際のTerminalで確認しながら進めます。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#shell">シェルから学ぶ</a>
+        <a class="button secondary" href="#path">PATHを見る</a>
+      </div>
+    </div>
+
+    <div class="machine" aria-label="環境変数とPATHのTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> echo $SHELL<br>
+          /bin/zsh<br><br>
+          <span class="prompt">MacBook-Air %</span> echo $PATH<br>
+          /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin<br><br>
+          <span class="prompt">MacBook-Air %</span> command -v python3<br>
+          /opt/homebrew/bin/python3<br><br>
+          <span class="prompt">MacBook-Air %</span> alias ll="ls -la"<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#shell">シェル</a>
+      <a href="#env">環境変数</a>
+      <a href="#config">設定ファイル</a>
+      <a href="#path">PATH</a>
+      <a href="#alias">alias</a>
+      <a href="#directories">ディレクトリ</a>
+      <a href="#trouble">困った時</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="shell">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Shell</span>
+            <h2>Terminalとシェルを分けて考える</h2>
+          </div>
+          <p class="lead">
+            Terminalは文字を表示して入力を受け取るアプリです。シェルは入力されたコマンドを解釈して実行するプログラムです。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Terminal</span>
+            <h3>画面と入力欄</h3>
+            <p>macOS標準のTerminal.appやiTerm2など。シェルを動かすための窓です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Shell</span>
+            <h3>コマンドの解釈役</h3>
+            <p><code>zsh</code> や <code>bash</code> など。変数、alias、PATH、リダイレクト、パイプを解釈します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">macOS</span>
+            <h3>標準はzsh</h3>
+            <p>現在のmacOSでは、通常ログインシェルは <code>zsh</code> です。古い資料では <code>bash</code> 前提の説明もあります。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>自分のシェルを確認する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo $SHELL
+echo $0
+ps -p $$</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>$SHELL</code> と <code>$0</code> の違い</strong>
+          <p><code>$SHELL</code> はログインシェル、<code>$0</code> は今動いているシェルを示します。普段は同じことが多いですが、手動で <code>bash</code> や <code>zsh</code> を起動すると変わります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="env">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Environment Variables</span>
+            <h2>環境変数は、コマンドに渡される設定</h2>
+          </div>
+          <p class="lead">
+            環境変数は、シェルやコマンドが参照する名前付きの値です。ホームディレクトリ、言語設定、PATH、ツールの設定などに使われます。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>変数</th><th>よくある意味</th><th>確認例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>HOME</code></td><td>自分のホームディレクトリ</td><td><code>echo $HOME</code></td></tr>
+              <tr><td><code>USER</code></td><td>ログイン中のユーザー名</td><td><code>echo $USER</code></td></tr>
+              <tr><td><code>SHELL</code></td><td>ログインシェル</td><td><code>echo $SHELL</code></td></tr>
+              <tr><td><code>PATH</code></td><td>コマンドを探すディレクトリの一覧</td><td><code>echo $PATH</code></td></tr>
+              <tr><td><code>LANG</code></td><td>言語や文字コードの設定</td><td><code>echo $LANG</code></td></tr>
+              <tr><td><code>EDITOR</code></td><td>標準で使うエディタ</td><td><code>echo $EDITOR</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>環境変数を一覧・確認する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>env
+printenv
+printenv PATH
+echo $HOME
+echo $PATH</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>一時的な変数とexportの違い</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>MY_NAME=mac
+echo $MY_NAME
+
+export MY_TEAM=terminal
+env | grep MY_TEAM</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>export</code> の役割</strong>
+          <p>シェル変数は、そのシェル内だけの値です。<code>export</code> すると、そこから起動する子プロセスにも渡される環境変数になります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="config">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Shell Config</span>
+            <h2>シェルの設定ファイルを知る</h2>
+          </div>
+          <p class="lead">
+            毎回同じ設定を手で打つのは大変です。zshでは主に <code>~/.zshrc</code> に、aliasやPATHの設定を書きます。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <span class="tag">よく触る</span>
+            <h3><code>~/.zshrc</code></h3>
+            <p>新しい対話シェルを開いた時に読み込まれます。普段のalias、PATH、プロンプト設定はここに書くことが多いです。</p>
+          </article>
+          <article class="card">
+            <span class="tag">ログイン時</span>
+            <h3><code>~/.zprofile</code></h3>
+            <p>ログインシェルで読み込まれます。Homebrewの初期設定などがここに入ることがあります。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>設定ファイルの存在を確認する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>ls -la ~ | grep zsh
+ls -la ~/.zshrc ~/.zprofile 2&gt;/dev/null</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>編集前にバックアップする</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>cp ~/.zshrc ~/.zshrc.backup
+ls -l ~/.zshrc.backup</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>設定を反映する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>source ~/.zshrc
+exec zsh</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>設定ファイルは小さく育てる</strong>
+          <p>一度に大量の設定を入れると、どれが原因で壊れたか分かりにくくなります。1つ追加したらTerminalを開き直して確認する、くらいが安全です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="path">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">PATH</span>
+            <h2>PATHは、コマンドを探す順番</h2>
+          </div>
+          <p class="lead">
+            <code>ls</code> や <code>python3</code> と入力した時、シェルはPATHに並んだディレクトリを左から順番に探します。
+          </p>
+        </div>
+
+        <div class="flow" aria-label="PATH探索の流れ">
+          <div class="flow-item"><strong>1. 入力</strong><span><code>python3</code> と打つ</span></div>
+          <div class="flow-item"><strong>2. PATHを見る</strong><span><code>:</code> 区切りの場所を左から確認</span></div>
+          <div class="flow-item"><strong>3. 最初に見つける</strong><span>見つかった実行ファイルを使う</span></div>
+          <div class="flow-item"><strong>4. 見つからない</strong><span><code>command not found</code> になる</span></div>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>PATHを見やすく表示する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo $PATH
+echo $PATH | tr ':' '\n'</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>コマンドがどこにあるか調べる</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>command -v ls
+command -v python3
+which python3
+type python3</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>自分用のbinをPATHに追加する例</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>mkdir -p ~/.local/bin
+echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zshrc
+source ~/.zshrc
+echo $PATH | tr ':' '\n'</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>順番が大切</strong>
+          <p><code>$HOME/.local/bin:$PATH</code> は自分のコマンドを先に探します。<code>$PATH:$HOME/.local/bin</code> は最後に探します。同じ名前のコマンドがある時、先に見つかった方が使われます。</p>
+        </div>
+
+        <div class="note">
+          <strong>HomebrewとPATH</strong>
+          <p>Apple Silicon Macでは <code>/opt/homebrew/bin</code>、Intel Macでは <code>/usr/local/bin</code> がHomebrewの代表的な置き場所です。<code>brew shellenv</code> の案内に従って設定されます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="alias">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Alias / Functions</span>
+            <h2>よく使う操作に名前をつける</h2>
+          </div>
+          <p class="lead">
+            aliasは短い別名です。長いコマンドや、よく使うオプションつきコマンドを覚えやすくできます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>一時的なaliasを試す</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>alias ll="ls -la"
+alias grep="grep --color=auto"
+alias
+ll</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>aliasを設定ファイルに保存する</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo 'alias ll="ls -la"' &gt;&gt; ~/.zshrc
+echo 'alias c="clear"' &gt;&gt; ~/.zshrc
+source ~/.zshrc</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>少し複雑なら関数にする</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>mkcd() {
+  mkdir -p "$1"
+  cd "$1"
+}</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>aliasは便利だが、教材では元のコマンドも覚える</strong>
+          <p>aliasは自分の環境では便利ですが、他人のMacやサーバーでは存在しないことがあります。まず元のコマンドを理解し、その後にaliasで短くするのがよい順番です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="directories">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">UNIX Directories</span>
+            <h2>標準的なディレクトリ構成を読む</h2>
+          </div>
+          <p class="lead">
+            UNIX系OSには、役割ごとにディレクトリを分ける慣習があります。macOSはUNIXの流れを持ちつつ、独自のディレクトリもあります。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>場所</th><th>役割</th><th>見る時の例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/bin</code></td><td>基本的な一般ユーザー向けコマンド</td><td><code>ls /bin</code></td></tr>
+              <tr><td><code>/sbin</code></td><td>システム管理向けコマンド</td><td><code>ls /sbin</code></td></tr>
+              <tr><td><code>/usr/bin</code></td><td>多くの標準コマンド</td><td><code>ls /usr/bin | head</code></td></tr>
+              <tr><td><code>/usr/sbin</code></td><td>追加の管理向けコマンド</td><td><code>ls /usr/sbin | head</code></td></tr>
+              <tr><td><code>/usr/local/bin</code></td><td>ユーザーが追加したコマンドの代表的な場所</td><td><code>ls /usr/local/bin</code></td></tr>
+              <tr><td><code>/opt/homebrew/bin</code></td><td>Apple Silicon MacのHomebrewコマンド置き場</td><td><code>ls /opt/homebrew/bin</code></td></tr>
+              <tr><td><code>/etc</code></td><td>システム全体の設定ファイル</td><td><code>ls /etc | head</code></td></tr>
+              <tr><td><code>/var</code></td><td>ログ、キャッシュ、状態が変わるデータ</td><td><code>ls /var</code></td></tr>
+              <tr><td><code>/tmp</code></td><td>一時ファイル</td><td><code>ls /tmp</code></td></tr>
+              <tr><td><code>/Applications</code></td><td>macOSアプリケーション</td><td><code>ls /Applications | head</code></td></tr>
+              <tr><td><code>~/Library</code></td><td>ユーザーごとのmacOSアプリ設定やキャッシュ</td><td><code>ls ~/Library</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>主要ディレクトリを実際に見る</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>ls /
+ls /bin | head
+ls /usr/bin | head
+ls /etc | head
+ls /var</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>触ってよい場所、見るだけの場所</strong>
+          <p>練習で作業する場所は基本的に <code>~/practice</code> やホームディレクトリ配下です。<code>/bin</code>、<code>/sbin</code>、<code>/etc</code> などは、まず「見るだけ」にします。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="trouble">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Troubleshooting</span>
+            <h2>設定で困った時の見方</h2>
+          </div>
+          <p class="lead">
+            PATHやシェル設定で困った時は、感覚で直すより、今の状態を小さく確認します。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <span class="tag">command not found</span>
+            <h3>コマンドが見つからない</h3>
+            <p>インストールされていない、または実行ファイルの場所がPATHに入っていない可能性があります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">設定が効かない</span>
+            <h3>読み込むファイルが違う</h3>
+            <p><code>~/.zshrc</code> に書いたか、<code>source ~/.zshrc</code> したか、今のシェルがzshかを確認します。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>command not foundの調査</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo $PATH | tr ':' '\n'
+command -v brew
+command -v python3
+ls -l /opt/homebrew/bin/python3 2&gt;/dev/null
+ls -l /usr/local/bin/python3 2&gt;/dev/null</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>設定ファイルの調査</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo $SHELL
+echo $0
+grep -n "PATH" ~/.zshrc
+grep -n "alias" ~/.zshrc
+source ~/.zshrc</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title">
+            <span>PATHの重複を見つける</span>
+            <button class="copy-button" type="button">コピー</button>
+          </div>
+          <pre><code>echo $PATH | tr ':' '\n' | sort | uniq -c | sort -nr</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>まず戻せる状態を作る</strong>
+          <p>設定ファイルを編集する前にバックアップを作る、追加した行にはコメントを書く、うまくいかない時は直前の変更だけ戻す。この3つで多くの事故を避けられます。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page">
+      <p>Mac Env / PATH Practice. コマンド例をコピーして、実際のTerminalで確認しながら進めてください。</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyCommand(button) {
+      const block = button.closest(".command-block");
+      const code = block.querySelector("code").innerText;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const original = button.textContent;
+        button.textContent = "コピー済み";
+        window.setTimeout(() => {
+          button.textContent = original;
+        }, 1400);
+      }).catch(() => {
+        button.textContent = "手動でコピー";
+      });
+    }
+
+    document.querySelectorAll(".copy-button").forEach((button) => {
+      button.addEventListener("click", () => copyCommand(button));
+    });
+  </script>
+</body>
+</html>
