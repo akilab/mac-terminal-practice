@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Archive Practice</title>
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, button { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 11ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.2vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 680px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .toc a:hover {
+      border-color: rgba(33, 35, 42, .2);
+      background: #fff;
+    }
+
+    section { padding: 74px 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: var(--rose-dark);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--mint-dark);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border-left: 5px solid var(--mint-dark);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .7);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .note.warning { border-left-color: var(--rose-dark); }
+    .note strong { display: block; margin-bottom: 6px; }
+    .note p { margin: 0; color: var(--muted); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(34, 38, 48, .06);
+    }
+
+    .command-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f5ef;
+      font-size: .86rem;
+      font-weight: 900;
+    }
+
+    .copy-button {
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 900;
+      padding: 6px 10px;
+    }
+
+    .copy-button:hover { background: var(--mint); }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 18px;
+      background: var(--terminal);
+      color: #f8f6f1;
+      font-size: .9rem;
+      line-height: 1.75;
+    }
+
+    .option-table {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f5ef;
+      font-size: .86rem;
+    }
+
+    td { color: #424650; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .flow-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+    }
+
+    .flow-item strong {
+      display: block;
+      color: var(--rose-dark);
+    }
+
+    .flow-item span {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    footer {
+      padding: 36px 0 56px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .home-link { position: absolute; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .command-title { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Archive Practice</p>
+      <h1>まとめて、軽くして、安全に渡す。</h1>
+      <p class="hero-text">
+        Windowsではzipだけで済む場面が多くても、MacやUNIXでは <code>tar</code>、<code>gzip</code>、<code>du</code>、<code>df</code> がよく出てきます。
+        まず容量を見て、次に中身を確認し、展開先を作ってから開く流れを練習します。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#concept">最初から学ぶ</a>
+        <a class="button secondary" href="#checklist">確認セットへ</a>
+      </div>
+    </div>
+
+    <div class="machine" aria-hidden="true">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> cd ~/practice/archive-lab<br>
+          <span class="prompt">MacBook-Air %</span> du -sh source<br>
+          24K&nbsp;&nbsp;source<br><br>
+          <span class="prompt">MacBook-Air %</span> zip -r source.zip source<br>
+          adding: source/ ...<br><br>
+          <span class="prompt">MacBook-Air %</span> unzip -l source.zip<br>
+          Archive: source.zip<br>
+          Length&nbsp;&nbsp;Name<br>
+          58&nbsp;&nbsp;source/docs/readme.txt<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内ナビゲーション">
+    <div class="page">
+      <a href="#concept">違い</a>
+      <a href="#size">容量確認</a>
+      <a href="#zip">zip/unzip</a>
+      <a href="#tar">tar</a>
+      <a href="#targz">tar.gz</a>
+      <a href="#gzip">gzip</a>
+      <a href="#safe">安全確認</a>
+      <a href="#formats">その他形式</a>
+      <a href="#checklist">確認セット</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="concept">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Concept</span>
+            <h2>まとめることと、軽くすることを分けて考える</h2>
+          </div>
+          <p class="lead">
+            Windowsのzipは「複数ファイルをまとめる」と「圧縮して軽くする」を一度に行います。UNIXでは、まとめる道具と圧縮する道具が分かれていることがあります。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">tar</span>
+            <h3>複数ファイルを1つにまとめる</h3>
+            <p><code>tar</code> はアーカイブを作る道具です。まずは圧縮なしの <code>.tar</code> として、中身を見てから展開する練習をします。</p>
+          </article>
+          <article class="card">
+            <span class="tag">gzip</span>
+            <h3>単一ファイルを圧縮する</h3>
+            <p><code>gzip</code> は基本的に1ファイルを <code>.gz</code> にします。標準動作では元ファイルが <code>.gz</code> に置き換わります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">zip</span>
+            <h3>まとめる + 圧縮する</h3>
+            <p><code>zip</code> はWindows利用者にも馴染みやすい形式です。フォルダを入れる時は <code>-r</code> で再帰的にたどります。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>練習場所とサンプルを作る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>mkdir -p ~/practice/archive-lab/source/docs
+mkdir -p ~/practice/archive-lab/source/logs
+mkdir -p ~/practice/archive-lab/restore
+cd ~/practice/archive-lab
+printf 'Mac archive practice\nzip tar gzip\n' &gt; source/docs/readme.txt
+printf '2026-07-05 start\n2026-07-05 archive\n' &gt; source/logs/app.log
+printf 'name,role\nakira,learner\n' &gt; source/members.csv
+pwd
+find source -type f</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="size">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Size</span>
+            <h2>圧縮の前に、容量を見る</h2>
+          </div>
+          <p class="lead">
+            何が大きいか分からないまま圧縮すると、期待より軽くならなかったり、不要なものまで送ったりします。まず <code>du</code> と <code>df</code> で見ます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>フォルダ全体の容量を人間向けに見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+du -sh source</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>1階層下ごとの容量を見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+du -h -d 1 source</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>ディスク全体の空き容量を見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>df -h</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>大きいファイルを探す入口</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+find . -type f -exec du -h {} + | sort -h | tail -n 10</code></pre>
+        </div>
+
+        <div class="note">
+          <strong><code>du</code> と <code>df</code> の違い</strong>
+          <p><code>du</code> はファイルやディレクトリが実際にディスク上で使っている量、<code>df</code> はディスク全体の空き容量を見ます。<code>du</code> と <code>ls -lh</code> の値は少し違うことがありますが、ざっくり容量を見たい時は <code>du -sh</code> で十分です。</p>
+        </div>
+
+        <div class="note">
+          <strong><code>df -h</code> は列を見る</strong>
+          <p><code>Avail</code> は空き容量、<code>Capacity</code> は使用率、<code>Mounted on</code> は場所です。迷ったら <code>/</code> や <code>/System/Volumes/Data</code> など、自分のホームディレクトリが乗っている行を見ます。</p>
+        </div>
+
+        <div class="note">
+          <strong><code>sort -h</code> が使えない時</strong>
+          <p>環境によっては <code>sort -h</code> が使えないことがあります。その場合は、まず <code>find . -type f -exec du -h {} +</code> だけで容量の一覧を確認します。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="zip">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">zip / unzip</span>
+            <h2>Windowsとも渡しやすいzipから始める</h2>
+          </div>
+          <p class="lead">
+            <code>zip -r</code> の <code>-r</code> は、ディレクトリの中を再帰的に入れる指定です。展開前には <code>unzip -l</code> で中身を見ます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>ディレクトリをzipにまとめる</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+zip -r source.zip source
+ls -lh source.zip</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>zipの中身を展開せずに見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+unzip -l source.zip</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>展開先を作ってから展開する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+mkdir -p restore/zip
+unzip source.zip -d restore/zip
+find restore/zip -type f</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>その場で <code>unzip source.zip</code> しない理由</strong>
+          <p><code>unzip</code> は指定しないとカレントディレクトリへ展開します。既存ファイルと名前が重なると上書き確認が出ることがあります。練習でも仕事でも、展開先ディレクトリを作ってから <code>-d</code> で指定すると安全です。</p>
+        </div>
+
+        <div class="note">
+          <strong>同じ名前のzipを作り直す時</strong>
+          <p>同じ名前の <code>source.zip</code> がある状態で <code>zip -r source.zip source</code> を実行すると、既存zipを更新します。練習で結果を比べたい時は、<code>source-v1.zip</code>、<code>source-v2.zip</code> のように名前を変えると分かりやすくなります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tar">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">tar</span>
+            <h2>まずは圧縮しないtarを読む</h2>
+          </div>
+          <p class="lead">
+            <code>tar</code> は「まとめる」道具です。<code>c</code> はcreate、<code>t</code> はlist、<code>x</code> はextract、<code>f</code> はfileと覚えます。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>オプション</th><th>意味</th><th>読み方</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>c</code></td><td>create</td><td>アーカイブを作る。</td></tr>
+              <tr><td><code>t</code></td><td>list</td><td>中身の一覧を見る。</td></tr>
+              <tr><td><code>x</code></td><td>extract</td><td>中身を展開する。</td></tr>
+              <tr><td><code>f</code></td><td>file</td><td>対象のアーカイブファイル名を指定する。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>圧縮なしのtarを作る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+tar -cf source.tar source
+ls -lh source.tar</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>tarの中身を展開せずに見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+tar -tf source.tar</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>展開先を作ってからtarを展開する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+mkdir -p restore/tar
+tar -xf source.tar -C restore/tar
+find restore/tar -type f</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong><code>tar</code> も上書きすることがある</strong>
+          <p><code>tar</code> も展開先に同じ名前のファイルがあると上書きすることがあります。初めて展開する時は、空のディレクトリを作って <code>-C</code> でそこへ展開します。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="targz">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">tar.gz</span>
+            <h2>tarにgzip圧縮を足す</h2>
+          </div>
+          <p class="lead">
+            <code>.tar.gz</code> は、tarでまとめたものをgzipで圧縮した形式です。<code>z</code> がgzip圧縮を使う合図です。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <span class="tag">作る</span>
+            <h3><code>tar -czf</code></h3>
+            <p><code>c</code> で作る、<code>z</code> でgzip、<code>f</code> でファイル名指定です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">見る / 展開</span>
+            <h3><code>tar -tzf</code> / <code>tar -xzf</code></h3>
+            <p><code>t</code> で一覧、<code>x</code> で展開です。展開時は <code>-C</code> で場所を指定します。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>tar.gzを作る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+tar -czf source.tar.gz source
+ls -lh source.tar.gz</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>tar.gzの中身を展開せずに見る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+tar -tzf source.tar.gz</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>展開先を作ってからtar.gzを展開する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+mkdir -p restore/targz
+tar -xzf source.tar.gz -C restore/targz
+find restore/targz -type f</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="gzip">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">gzip / gunzip</span>
+            <h2>gzipは単一ファイル用、と覚える</h2>
+          </div>
+          <p class="lead">
+            <code>gzip</code> はディレクトリをまとめる道具ではありません。標準動作では <code>memo.txt</code> が <code>memo.txt.gz</code> に置き換わり、<code>gunzip</code> で戻します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>単一ファイルをgzip圧縮する</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+cp source/docs/readme.txt gzip-sample.txt
+ls -lh gzip-sample.txt
+gzip gzip-sample.txt
+ls -lh gzip-sample.txt.gz</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>gunzipで元の名前に戻す</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+gunzip gzip-sample.txt.gz
+ls -lh gzip-sample.txt
+cat gzip-sample.txt</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>元ファイルが置き換わる点に注意</strong>
+          <p><code>gzip file.txt</code> を実行すると、通常は <code>file.txt</code> が消えて <code>file.txt.gz</code> になります。元ファイルを残したい時は、先にコピーを作ってから試すか、使える環境では <code>gzip -k file.txt</code> のように <code>-k</code> を付けます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="safe">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Safety</span>
+            <h2>送る前と展開前に、ひと呼吸置く</h2>
+          </div>
+          <p class="lead">
+            アーカイブは便利ですが、どこへ何が出るかを見ないまま展開すると混乱します。中身、展開先、上書き、怪しいパスの4点を確認します。
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="flow-item">
+            <strong>1. 場所を見る</strong>
+            <span><code>pwd</code> で今いる場所を確認します。</span>
+          </div>
+          <div class="flow-item">
+            <strong>2. 中身を見る</strong>
+            <span><code>unzip -l</code>、<code>tar -tf</code>、<code>tar -tzf</code> で一覧を見ます。</span>
+          </div>
+          <div class="flow-item">
+            <strong>3. 展開先を作る</strong>
+            <span><code>mkdir -p restore/name</code> のように受け皿を作ります。</span>
+          </div>
+          <div class="flow-item">
+            <strong>4. そこへ展開する</strong>
+            <span><code>-d</code> や <code>-C</code> で展開先を指定します。</span>
+          </div>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>展開前の安全確認</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+pwd
+ls -lh source.zip source.tar source.tar.gz
+unzip -l source.zip
+tar -tf source.tar
+tar -tzf source.tar.gz</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>絶対パスや怪しいパスに注意</strong>
+          <p>一覧に <code>/Users/...</code> のような絶対パス、<code>../</code> を含むパス、知らない大量のファイルが見えたら、すぐ展開せずに送信元へ確認します。受け取ったファイルほど、まず一覧を見る習慣が効きます。</p>
+        </div>
+
+        <div class="note">
+          <strong>展開には、展開後の容量が必要</strong>
+          <p><code>.zip</code> や <code>.tar.gz</code> のサイズが小さくても、展開後は大きくなることがあります。送る前は <code>du -sh source</code>、受け取った後は展開先の空き容量を <code>df -h</code> で確認します。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="formats">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Formats</span>
+            <h2>その他の圧縮形式を見分ける</h2>
+          </div>
+          <p class="lead">
+            操作練習は <code>tar</code> と <code>gzip</code> に絞ります。ただし実務では <code>.tar.bz2</code> や <code>.tar.xz</code> も見かけるため、読み方だけ整理します。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>形式</th><th>よく使う確認コマンド</th><th>意味</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>.tar.gz</code> / <code>.tgz</code></td><td><code>tar -tzf file.tar.gz</code></td><td>tarでまとめ、gzipで圧縮した形式。まず覚える基本形です。</td></tr>
+              <tr><td><code>.tar.bz2</code></td><td><code>tar -tjf file.tar.bz2</code></td><td>tarでまとめ、bzip2で圧縮した形式。<code>j</code> がbzip2の合図です。</td></tr>
+              <tr><td><code>.tar.xz</code></td><td><code>tar -tJf file.tar.xz</code></td><td>tarでまとめ、xzで圧縮した形式。<code>J</code> がxzの合図です。</td></tr>
+              <tr><td><code>.7z</code></td><td><code>7z l file.7z</code></td><td>7-Zip形式です。macOS標準では <code>7z</code> が入っていないことが多く、別途ツールが必要です。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>tar系の形式を一覧確認する例</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code># gzip圧縮
+tar -tzf file.tar.gz
+
+# bzip2圧縮
+tar -tjf file.tar.bz2
+
+# xz圧縮
+tar -tJf file.tar.xz</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>まずは <code>.tar.gz</code> を確実に読む</strong>
+          <p><code>bzip2</code> や <code>xz</code> は環境によって必要なコマンドが入っていない場合があります。教材では一番よく使う <code>.tar.gz</code> を中心に練習し、他の形式は「見かけた時に調べる入口」として覚えます。</p>
+        </div>
+
+        <div class="note">
+          <strong>MacとWSLで入っている道具が違うことがある</strong>
+          <p>macOSでは通常 <code>zip</code> / <code>unzip</code> が使えますが、WSLの最小構成では入っていないことがあります。環境差でコマンドが見つからない時は、教材の理解が間違っているとは限りません。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Checklist</span>
+            <h2>迷った時の確認セット</h2>
+          </div>
+          <p class="lead">
+            何を作ったか、どれくらい大きいか、どこへ展開するかを順番に見ます。困った時ほど、いきなり展開せず確認から始めます。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>やりたいこと</th><th>コマンド</th><th>見るポイント</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>フォルダの容量を見る</td><td><code>du -sh source</code></td><td>送る前に大きさを把握する。</td></tr>
+              <tr><td>1階層下の容量を見る</td><td><code>du -h -d 1 source</code></td><td>どのディレクトリが大きいか見る。</td></tr>
+              <tr><td>空き容量を見る</td><td><code>df -h</code></td><td>展開できるだけの空きがあるか見る。</td></tr>
+              <tr><td>zipの中身を見る</td><td><code>unzip -l file.zip</code></td><td>展開前にファイル名とパスを見る。</td></tr>
+              <tr><td>tarの中身を見る</td><td><code>tar -tf file.tar</code></td><td>圧縮なしtarの一覧を見る。</td></tr>
+              <tr><td>tar.gzの中身を見る</td><td><code>tar -tzf file.tar.gz</code></td><td><code>z</code> はgzip圧縮の合図。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>迷った時の確認セット</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/archive-lab
+pwd
+df -h
+du -sh .
+find . -type f | head -n 30
+find . \( -name '*.zip' -o -name '*.tar' -o -name '*.tar.gz' \) -type f -exec ls -lh {} +
+unzip -l source.zip
+tar -tf source.tar
+tar -tzf source.tar.gz
+mkdir -p restore/check-before-extract</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>覚える順番</strong>
+          <p><code>zip</code> はWindowsとも渡しやすい形式、<code>tar</code> はまとめる形式、<code>tar.gz</code> はまとめてgzip圧縮した形式、<code>gzip</code> は単一ファイルの圧縮です。展開前は必ず中身を見て、展開先を作ります。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page">
+      <p>Mac Archive Practice. 容量を見て、中身を確認し、安全な場所へ展開できるようにします。</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyCommand(button) {
+      const block = button.closest(".command-block");
+      const code = block.querySelector("code").innerText;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const original = button.textContent;
+        button.textContent = "コピー済み";
+        window.setTimeout(() => {
+          button.textContent = original;
+        }, 1400);
+      }).catch(() => {
+        button.textContent = "手動でコピー";
+      });
+    }
+
+    document.querySelectorAll(".copy-button").forEach((button) => {
+      button.addEventListener("click", () => copyCommand(button));
+    });
+  </script>
+</body>
+</html>

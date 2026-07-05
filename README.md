@@ -23,10 +23,11 @@ https://akilab.github.io/mac-terminal-practice/
 - Git / GitHubのブランチ、commit、push、Pull Request練習
 - プロセス、ジョブ、ポート、ネットワーク確認、ログ監視の基礎トレーニング
 - 権限、所有者、実行権限、`sudo` の基礎トレーニング
+- 圧縮、アーカイブ、容量確認、展開前の安全確認トレーニング
 
 ## 練習できる項目
 
-`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, `env`, `export`, `alias`, `git`, `ps`, `pgrep`, `top`, `kill`, `jobs`, `fg`, `lsof`, `nc`, `chmod`, `sudo`, `whoami`, `id`, リダイレクト, パイプ
+`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, `env`, `export`, `alias`, `git`, `ps`, `pgrep`, `top`, `kill`, `jobs`, `fg`, `lsof`, `nc`, `chmod`, `sudo`, `whoami`, `id`, `du`, `df`, `zip`, `unzip`, `tar`, `gzip`, `gunzip`, リダイレクト, パイプ
 
 ## ファイル構成
 
@@ -41,6 +42,7 @@ https://akilab.github.io/mac-terminal-practice/
 - `mac-git-practice.html`: Git / GitHub練習ページ
 - `mac-process-job-practice.html`: プロセス、ジョブ、ポート、ネットワーク確認練習ページ
 - `mac-permission-practice.html`: 権限、所有者、実行権限練習ページ
+- `mac-archive-practice.html`: 圧縮、アーカイブ、容量確認練習ページ
 
 ## 使い方
 
