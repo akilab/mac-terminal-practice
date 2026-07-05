@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Vim Practice</title>
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, button, kbd { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 11ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.2vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 680px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .vim-status {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 2px 8px;
+      background: var(--terminal);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .toc a:hover {
+      border-color: rgba(33, 35, 42, .2);
+      background: #fff;
+    }
+
+    section { padding: 74px 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: var(--rose-dark);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--mint-dark);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border-left: 5px solid var(--mint-dark);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .7);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    .note.warning { border-left-color: var(--rose-dark); }
+    .note strong { display: block; margin-bottom: 6px; }
+    .note p { margin: 0; color: var(--muted); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: 0 10px 26px rgba(34, 38, 48, .06);
+    }
+
+    .command-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f5ef;
+      font-size: .86rem;
+      font-weight: 900;
+    }
+
+    .copy-button {
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 900;
+      padding: 6px 10px;
+    }
+
+    .copy-button:hover { background: var(--mint); }
+
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 18px;
+      background: var(--terminal);
+      color: #f8f6f1;
+      font-size: .9rem;
+      line-height: 1.75;
+    }
+
+    kbd {
+      display: inline-block;
+      min-width: 1.8em;
+      padding: 1px 6px;
+      border: 1px solid rgba(33, 35, 42, .22);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-size: .88em;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .option-table {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 8px 22px rgba(34, 38, 48, .05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f5ef;
+      font-size: .86rem;
+    }
+
+    td { color: #424650; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .flow-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .66);
+    }
+
+    .flow-item strong {
+      display: block;
+      color: var(--rose-dark);
+    }
+
+    .flow-item span {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    footer {
+      padding: 36px 0 56px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .home-link { position: absolute; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .command-title { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Vim Practice</p>
+      <h1>まず、迷わず保存して終了する。</h1>
+      <p class="hero-text">
+        Terminalは使うけれど、vi/vimのモードで手が止まる人向けの教材です。
+        先に <code>Esc</code>、<code>:q</code>、<code>:w</code>、<code>:wq</code> を覚えて、「閉じられない」不安を小さくしてから編集を練習します。
+        <code>:q!</code> は変更を捨てる非常口です。通常は保存して終わる <code>:wq</code> を使います。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#escape">終了から始める</a>
+        <a class="button secondary" href="#cheatsheet">最低限だけ見る</a>
+      </div>
+    </div>
+
+    <div class="machine" aria-hidden="true">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> vim memo.txt<br><br>
+          Vim practice memo<br>
+          mode first, command later<br>
+          save and quit safely<span class="cursor"></span><br>
+          <span class="vim-status">-- INSERT --</span><br><br>
+          Vim内: Esc -&gt; :wq -&gt; Enter
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="目次">
+    <div class="page">
+      <a href="#value">価値</a>
+      <a href="#modes">モード</a>
+      <a href="#setup">練習準備</a>
+      <a href="#escape">終了と保存</a>
+      <a href="#move">移動</a>
+      <a href="#insert">挿入</a>
+      <a href="#edit">削除/Undo</a>
+      <a href="#yank">コピー</a>
+      <a href="#search">検索</a>
+      <a href="#replace">置換</a>
+      <a href="#view">表示補助</a>
+      <a href="#trouble">困った時</a>
+      <a href="#cheatsheet">チートシート</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="value">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Why Vim</span>
+            <h2>突然開いても、慌てないために。</h2>
+          </div>
+          <p class="lead">
+            vi/vimは古く見えても、UNIX系環境では今でもよく出てきます。普段のエディタにしなくても、最低限の読み書きと終了方法を知っているだけで安心です。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <div class="card">
+            <span class="tag">どこでも</span>
+            <h3>サーバーに入っていることが多い</h3>
+            <p>GUIエディタがない環境でも、<code>vi</code> や <code>vim</code> だけは使える場面があります。</p>
+          </div>
+          <div class="card">
+            <span class="tag">突然</span>
+            <h3>Git操作で開くことがある</h3>
+            <p><code>git commit</code> でメッセージ編集画面が開いた時、保存して閉じられれば先に進めます。</p>
+          </div>
+          <div class="card">
+            <span class="tag">最低限</span>
+            <h3>全部覚えなくてよい</h3>
+            <p>最初は <code>Esc</code>、保存、終了、少しの移動と編集だけで十分です。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Modes</span>
+            <h2>Vimは、いまのモードで動きが変わる。</h2>
+          </div>
+          <p class="lead">
+            混乱の正体は、多くの場合「文字を打つモード」と「命令を出すモード」が分かれていることです。迷ったらまず <kbd>Esc</kbd> でNormal modeへ戻ります。
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="flow-item">
+            <strong>Normal</strong>
+            <span>移動、削除、コピー、貼り付けなどの命令を押す場所。</span>
+          </div>
+          <div class="flow-item">
+            <strong>Insert</strong>
+            <span>文字を入力する場所。左下に <code>-- INSERT --</code> と出ます。</span>
+          </div>
+          <div class="flow-item">
+            <strong>Command-line</strong>
+            <span><code>:</code> から保存、終了、置換、設定などを入力する場所。画面下に入力され、<kbd>Enter</kbd> で実行、<kbd>Esc</kbd> でキャンセルします。</span>
+          </div>
+          <div class="flow-item">
+            <strong>Visual</strong>
+            <span>範囲選択をする場所。この教材では名前だけ知っていれば十分です。</span>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>合言葉は「まずEsc」</strong>
+          <p>文字が入らない、変な動きをした、コマンドを打てない。そんな時は <kbd>Esc</kbd> を1回か2回押してNormal modeに戻ります。左下の <code>-- INSERT --</code> が消えたら、命令を受け付ける状態です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Setup</span>
+            <h2>安全な練習ファイルを作る。</h2>
+          </div>
+          <p class="lead">
+            練習場所は <code>~/practice/vim-lab</code> です。ホームディレクトリ配下の小さなテキストだけを触るので、何度失敗しても大丈夫です。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Terminalで実行: 練習場所とサンプルを作る</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>mkdir -p ~/practice/vim-lab
+cd ~/practice/vim-lab
+printf 'Vim practice memo\napple banana apple\nsave before quit\n' &gt; memo.txt
+cat memo.txt</code></pre>
+        </div>
+        <p class="mini-note">この準備コマンドを再実行すると、<code>memo.txt</code> は作り直されます。練習を最初からやり直したい時だけ実行します。</p>
+
+        <div class="command-block">
+          <div class="command-title"><span>Terminalで実行: 練習ファイルをVimで開く</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>cd ~/practice/vim-lab
+vim memo.txt</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>ここから先はVim内で押すキーも出てきます</strong>
+          <p><code>vim memo.txt</code> でVimを開いた後、<code>:wq</code> や <code>dd</code> はTerminalではなくVimの画面内で押します。各ブロックの見出しに「Terminalで実行」か「Vim内で押すキー」と書いてあります。</p>
+          <p>「Vim内で押すキー」はコピーして貼り付けるものではありません。1行ずつ、実際にキーボードで押してください。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="escape">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Save and Quit</span>
+            <h2>終了できれば、怖さは半分になる。</h2>
+          </div>
+          <p class="lead">
+            まず <kbd>Esc</kbd> でNormal modeに戻り、<code>:</code> から命令を入力します。初心者は保存して終了する <code>:wq</code> を中心に覚えれば大丈夫です。<code>:q!</code> は保存していない変更を捨てるため、困った時の非常口として扱います。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 保存して終了</span></div>
+          <pre><code>Esc
+:wq
+Enter</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>キー</th><th>意味</th><th>注意</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Esc</code></td><td>Normal modeへ戻る</td><td>迷った時の最初の一手。左下の <code>-- INSERT --</code> が消える。</td></tr>
+              <tr><td><code>:q</code></td><td>終了する</td><td>変更があると終了できない。安全に止まる。</td></tr>
+              <tr><td><code>:q!</code></td><td>保存せず終了する</td><td>変更を捨てる。必要な編集まで消えるので意味を分かって使う。</td></tr>
+              <tr><td><code>:w</code></td><td>保存する</td><td>Vimは開いたまま。続けて編集できる。</td></tr>
+              <tr><td><code>:wq</code></td><td>保存して終了する</td><td>最初に一番使う形。</td></tr>
+              <tr><td><code>ZZ</code></td><td>保存して終了する</td><td>Normal modeで押す短縮形。紹介程度でOK。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 保存だけして続ける</span></div>
+          <pre><code>Esc
+:w
+Enter</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 変更を捨てて終了</span></div>
+          <pre><code>Esc
+:q!
+Enter</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="move">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Move</span>
+            <h2>Normal modeで、カーソルを動かす。</h2>
+          </div>
+          <p class="lead">
+            矢印キーも使えます。Vimらしい基本キーは <code>h</code>、<code>j</code>、<code>k</code>、<code>l</code> です。まずは「押しても文字が入らない状態」で試します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 1文字ずつ移動</span></div>
+          <pre><code>Esc
+h
+j
+k
+l</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>キー</th><th>移動</th><th>使う場面</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>h</code></td><td>左へ</td><td>1文字戻る。</td></tr>
+              <tr><td><code>j</code></td><td>下へ</td><td>次の行へ。</td></tr>
+              <tr><td><code>k</code></td><td>上へ</td><td>前の行へ。</td></tr>
+              <tr><td><code>l</code></td><td>右へ</td><td>1文字進む。</td></tr>
+              <tr><td><code>0</code></td><td>行頭へ</td><td>インデントも含めた本当の先頭。</td></tr>
+              <tr><td><code>^</code></td><td>行の最初の文字へ</td><td>空白を飛ばして本文へ。</td></tr>
+              <tr><td><code>$</code></td><td>行末へ</td><td>行の最後へ。</td></tr>
+              <tr><td><code>gg</code></td><td>ファイル先頭へ</td><td>長いファイルの最初へ戻る。</td></tr>
+              <tr><td><code>G</code></td><td>ファイル末尾へ</td><td>最後の行へ移動。</td></tr>
+              <tr><td><code>3G</code></td><td>3行目へ</td><td>行番号を付けて指定行へ移動。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="insert">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Insert</span>
+            <h2>文字を入れる時だけInsert modeへ。</h2>
+          </div>
+          <p class="lead">
+            入力を始めるキーはいくつかあります。左下に <code>-- INSERT --</code> が出たら文字入力中です。入力が終わったら <kbd>Esc</kbd> で戻ります。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: カーソル位置から入力する</span></div>
+          <pre><code>Esc
+i
+hello vim
+Esc</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>キー</th><th>意味</th><th>覚え方</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>i</code></td><td>カーソルの前から入力</td><td>insert。まずはこれ。</td></tr>
+              <tr><td><code>a</code></td><td>カーソルの後ろから入力</td><td>append。1文字後ろへ入る。</td></tr>
+              <tr><td><code>o</code></td><td>下に新しい行を作って入力</td><td>open line below。</td></tr>
+              <tr><td><code>O</code></td><td>上に新しい行を作って入力</td><td>open line above。</td></tr>
+              <tr><td><code>A</code></td><td>行末へ移動して入力</td><td>末尾に追記したい時。</td></tr>
+              <tr><td><code>I</code></td><td>行頭の文字位置へ移動して入力</td><td>行の先頭側を直したい時。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          <strong>左下を見る癖をつける</strong>
+          <p><code>-- INSERT --</code> が見えている時に <code>dd</code> と押すと、削除ではなく文字として <code>dd</code> が入力されます。命令を出す前に <kbd>Esc</kbd> です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="edit">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Edit</span>
+            <h2>消しても、戻せる。</h2>
+          </div>
+          <p class="lead">
+            削除、取り消し、やり直しはNormal modeで使います。危なそうに見えますが、まずは小さな練習ファイルで試せば感覚をつかめます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 1文字削除して取り消す</span></div>
+          <pre><code>Esc
+x
+u
+Ctrl+r</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>キー</th><th>意味</th><th>補足</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>x</code></td><td>カーソル上の1文字を削除</td><td>小さい修正に便利。</td></tr>
+              <tr><td><code>dd</code></td><td>1行削除</td><td>削除した行は後で <code>p</code> で貼れる。</td></tr>
+              <tr><td><code>dw</code></td><td>単語を削除</td><td>カーソル位置から単語の終わりまで。</td></tr>
+              <tr><td><code>u</code></td><td>取り消し</td><td>undo。困ったらまずこれ。</td></tr>
+              <tr><td><code>Ctrl+r</code></td><td>やり直し</td><td>undoを戻す。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="yank">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Yank and Put</span>
+            <h2>Vimのコピーは、yankとput。</h2>
+          </div>
+          <p class="lead">
+            Vimではコピーを <code>yank</code>、貼り付けを <code>put</code> と呼びます。まずは行単位の <code>yy</code> と <code>p</code> を覚えます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 1行コピーして下に貼る</span></div>
+          <pre><code>Esc
+yy
+p</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>キー</th><th>意味</th><th>補足</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>yy</code></td><td>1行コピー</td><td>yank line。</td></tr>
+              <tr><td><code>p</code></td><td>カーソルの後ろ/下に貼る</td><td>行なら下に貼る。</td></tr>
+              <tr><td><code>P</code></td><td>カーソルの前/上に貼る</td><td>行なら上に貼る。</td></tr>
+              <tr><td><code>3yy</code></td><td>3行コピー</td><td>数字を前に付けると回数指定。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="search">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Search</span>
+            <h2>スラッシュで、下方向へ探す。</h2>
+          </div>
+          <p class="lead">
+            ファイル内検索は <code>/word</code> です。次の候補へ進む時は <code>n</code>、前の候補へ戻る時は <code>N</code> を押します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: appleを検索する</span></div>
+          <pre><code>Esc
+/apple
+Enter
+n
+N</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>検索もNormal modeから</strong>
+          <p>Insert modeのまま <code>/apple</code> と打つと、本文に文字として入ります。検索したい時も、まず <kbd>Esc</kbd> です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="replace">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Substitute</span>
+            <h2>置換は強い。最初は確認付きで。</h2>
+          </div>
+          <p class="lead">
+            <code>:s</code> は行内置換、<code>:%s</code> はファイル全体の置換です。<code>%</code> は「ファイル全体」、最後の <code>g</code> は「その行の中に同じ対象が複数あれば全部」を意味します。全置換は強力なので、慣れるまでは <code>gc</code> を付けて1件ずつ確認します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 1行だけ置換する</span></div>
+          <pre><code>Esc
+:s/apple/orange/g
+Enter</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: ファイル全体を確認付きで置換する</span></div>
+          <pre><code>Esc
+:%s/apple/orange/gc
+Enter</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>形</th><th>意味</th><th>安全メモ</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>:s/old/new/g</code></td><td>今いる1行だけ置換</td><td><code>g</code> があるので、その1行内の対象をすべて置換する。</td></tr>
+              <tr><td><code>:%s/old/new/g</code></td><td>ファイル全体を一括置換</td><td><code>%</code> があるので、全行が対象になる。実行前に対象をよく見る。</td></tr>
+              <tr><td><code>:%s/old/new/gc</code></td><td>ファイル全体を確認しながら置換</td><td><code>c</code> はconfirm。<code>y</code> で置換、<code>n</code> でスキップ。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note warning">
+          <strong>置換結果を確認するまで、追加保存しない</strong>
+          <p>置換後、まだ保存していなければ <code>u</code> で戻せます。結果を確認するまでは追加で <code>:w</code> せず、慣れるまでは <code>:%s/old/new/gc</code> で1件ずつ確認します。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="view">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">View Helpers</span>
+            <h2>行番号は、今どこかを見失わないために。</h2>
+          </div>
+          <p class="lead">
+            行番号を表示すると、説明やエラーの「何行目」が追いやすくなります。相対行番号は移動に慣れてからで大丈夫です。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 行番号を表示する</span></div>
+          <pre><code>Esc
+:set number
+Enter</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 行番号を消す</span></div>
+          <pre><code>Esc
+:set nonumber
+Enter</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 相対行番号を試す</span></div>
+          <pre><code>Esc
+:set relativenumber
+Enter</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="trouble">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Troubleshooting</span>
+            <h2>困った時は、状態を戻してから考える。</h2>
+          </div>
+          <p class="lead">
+            Vimで詰まる時は、壊れたのではなく「今いるモード」や「保存状態」が分からなくなっていることが多いです。まずは深呼吸して <kbd>Esc</kbd> です。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>状況</th><th>まずやること</th><th>次に見ること</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>何を押しても思った通りにならない</td><td><code>Esc</code> を1回か2回押す</td><td>左下の <code>-- INSERT --</code> が消えたか見る。</td></tr>
+              <tr><td>保存して終わりたい</td><td><code>Esc</code>、<code>:wq</code>、<code>Enter</code></td><td>最初はこれを体に入れる。</td></tr>
+              <tr><td>変更を捨てて終わりたい</td><td><code>Esc</code>、<code>:q!</code>、<code>Enter</code></td><td><code>:q!</code> は変更を捨てる。必要な内容がない時だけ。</td></tr>
+              <tr><td><code>E37: No write since last change</code> が出た</td><td>保存するなら <code>:wq</code></td><td>捨てるなら <code>:q!</code>。Vimが安全に止めてくれている。</td></tr>
+              <tr><td>swapファイルらしい表示が出た</td><td>慌てて連打しない</td><td>同じファイルを別画面で開いていないか、前回クラッシュしていないか読む。</td></tr>
+              <tr><td>Git commitでVimが開いた</td><td><code>i</code> でメッセージを書く</td><td><code>Esc</code>、<code>:wq</code>、<code>Enter</code> で保存終了してcommitを進める。</td></tr>
+              <tr><td>Git commitを中止したい</td><td>メッセージを書かずに <code>Esc</code>、<code>:q!</code>、<code>Enter</code></td><td>保存せず閉じるため、commitは作られません。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: Git commit画面の最低限</span></div>
+          <pre><code>i
+Add short commit message
+Esc
+:wq
+Enter</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: Git commitを中止する</span></div>
+          <pre><code>Esc
+:q!
+Enter</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>swapファイル表示は、読んでから選ぶ</strong>
+          <p>Vimは編集中の復旧情報をswapファイルとして持つことがあります。別のVimで同じファイルを開いている、前回異常終了した、などの可能性があります。分からない時は画面の説明を読み、必要なら詳しい人に状況を見せます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cheatsheet">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Cheat Sheet</span>
+            <h2>最低限これだけ覚える。</h2>
+          </div>
+          <p class="lead">
+            最初から全部を暗記しません。まずは「戻る、書く、保存して終わる、捨てて終わる」だけで十分に戦えます。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <div class="card">
+            <span class="tag">最初の5つ</span>
+            <h3>脱出と保存</h3>
+            <p><code>Esc</code>: Normal modeへ戻る</p>
+            <p><code>:wq</code>: 保存して終了</p>
+            <p><code>:q!</code>: 変更を捨てて終了</p>
+            <p><code>:w</code>: 保存だけ</p>
+            <p><code>:q</code>: 変更がなければ終了</p>
+          </div>
+          <div class="card">
+            <span class="tag">編集の入口</span>
+            <h3>よく使うキー</h3>
+            <p><code>i</code>: 入力開始、<code>Esc</code>: 入力終了</p>
+            <p><code>h j k l</code>: 左 下 上 右</p>
+            <p><code>dd</code>: 1行削除、<code>u</code>: 取り消し</p>
+            <p><code>yy</code>: 1行コピー、<code>p</code>: 貼り付け</p>
+            <p><code>/word</code>: 検索、<code>n</code>: 次へ</p>
+          </div>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Vim内で押すキー: 最低限の保存終了セット</span></div>
+          <pre><code>Esc
+:wq
+Enter</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page">
+      <p>Mac Vim Practice. まずNormal modeへ戻り、保存して終了できるところから始めます。</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyCommand(button) {
+      const block = button.closest(".command-block");
+      const code = block.querySelector("code").innerText;
+
+      navigator.clipboard.writeText(code).then(() => {
+        const original = button.textContent;
+        button.textContent = "コピー済み";
+        window.setTimeout(() => {
+          button.textContent = original;
+        }, 1400);
+      }).catch(() => {
+        button.textContent = "手動でコピー";
+      });
+    }
+
+    document.querySelectorAll(".copy-button").forEach((button) => {
+      button.addEventListener("click", () => copyCommand(button));
+    });
+  </script>
+</body>
+</html>
