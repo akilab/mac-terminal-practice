@@ -662,13 +662,85 @@ top -o mem</code></pre>
             <h2>どのポートを誰が使っているか調べる</h2>
           </div>
           <p class="lead">
-            開発中によく出る「Port 3000 is already in use」は、そのポートを別プロセスが使っているという意味です。
+            開発中によく出る「Port 3000 is already in use」は、そのポートを何かが使っているという意味です。多くの場合は前に起動した開発サーバーですが、COMMAND名を見てから判断します。
           </p>
         </div>
 
         <div class="command-block">
           <div class="command-title"><span>ポート3000を使っているプロセスを探す</span><button class="copy-button" type="button">コピー</button></div>
           <pre><code>lsof -nP -iTCP:3000 -sTCP:LISTEN</code></pre>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <span class="tag">目的</span>
+            <h3><code>lsof</code> は「誰が何を開いているか」を見る</h3>
+            <p><code>lsof</code> は list open files の略です。UNIX/macOSでは通常のファイル、ディレクトリ、実行ファイル、端末、ネットワーク接続などを「開いているもの」として扱えます。ネットワーク専用ではなく、オプションでネットワークに絞って使います。</p>
+          </article>
+          <article class="card">
+            <span class="tag">まず見る</span>
+            <h3>開発サーバーの衝突を確認する</h3>
+            <p><code>Port 3000 is already in use</code> と出たら、まず <code>lsof -nP -iTCP:3000 -sTCP:LISTEN</code> で待ち受け中のプロセスを確認します。基本は <code>3000</code> の部分だけを、エラーに出た番号へ置き換えます。</p>
+          </article>
+        </div>
+
+        <div class="note">
+          <strong>何も指定しない <code>lsof</code> は情報が多すぎる</strong>
+          <p><code>lsof -nP | head</code> は、開いているもの全体の先頭だけを表示します。先頭には <code>/proc/1/cwd</code> や <code>/proc/1/exe</code> のような、プロセスが参照しているファイルやディレクトリが出ることがあります。ここにポートが見えなくても正常です。</p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>lsofを段階的に絞り込む</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code># 開いているもの全体を見る。量が多いので先頭だけ確認する
+lsof -nP | head
+
+# ネットワーク関係だけに絞る
+lsof -nP -i
+
+# TCPで待ち受け中のポートだけに絞る
+lsof -nP -iTCP -sTCP:LISTEN
+
+# 3000番ポートだけに絞る
+lsof -nP -iTCP:3000 -sTCP:LISTEN</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>結果が空でも、コマンド失敗とは限らない</strong>
+          <p><code>lsof -nP -i</code> や <code>lsof -nP -iTCP -sTCP:LISTEN</code> で何も出ない場合、その環境で表示できるネットワーク接続や待ち受けプロセスが無いだけかもしれません。WSLでは見え方がMacと異なることもあります。開発サーバーを起動してから、対象ポートを指定して確認すると理解しやすくなります。</p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>部分</th><th>意味</th><th>初心者向けの読み方</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>-nP</code></td><td>名前解決を省略する</td><td><code>-n</code> はIPをホスト名に変換しない、<code>-P</code> はポート番号をサービス名に変換しない指定です。表示が速く、<code>3000</code> のような番号のまま読めます。</td></tr>
+              <tr><td><code>-i</code></td><td>ネットワーク関連に絞る</td><td><code>lsof</code> は本来いろいろな「開いているもの」を表示するため、ポートを見たい時は <code>-i</code> でネットワークに絞ります。</td></tr>
+              <tr><td><code>-iTCP:3000</code></td><td>TCPの3000番ポートに絞る</td><td><code>TCP:3000</code> で「TCP通信の3000番ポートだけ」を探します。番号だけ変えれば、他のポートを確認できます。</td></tr>
+              <tr><td><code>-sTCP:LISTEN</code></td><td>待ち受け中だけに絞る</td><td><code>LISTEN</code> は接続を待っている状態です。開発サーバーがポートを占有しているか知りたい時は、ここを見るのが近道です。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>出力例と見る場所</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code>COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node     4821 akr   22u  IPv6 0x123456789abcdef0      0t0  TCP *:3000 (LISTEN)</code></pre>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>列</th><th>見るポイント</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>COMMAND</code></td><td>動いているコマンド名です。<code>node</code>、<code>python</code>、<code>ruby</code> などが出ます。</td></tr>
+              <tr><td><code>PID</code></td><td>プロセス番号です。止める時はこの番号を <code>kill PID</code> に渡します。</td></tr>
+              <tr><td><code>USER</code></td><td>そのプロセスを起動したユーザーです。自分のユーザー名なら、自分が起動した開発サーバーの可能性が高いです。</td></tr>
+              <tr><td><code>NAME</code></td><td><code>*:3000 (LISTEN)</code> のように出ていれば、3000番ポートで接続待ちをしています。</td></tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="command-block">
@@ -679,8 +751,28 @@ lsof -nP -iTCP:8000 -sTCP:LISTEN
 lsof -nP -iTCP:8080 -sTCP:LISTEN</code></pre>
         </div>
 
+        <div class="note">
+          <strong>慣れないうちは1行ずつ実行する</strong>
+          <p>エラーに出ているポート番号が分かっている場合は、その番号の行だけで十分です。例えば <code>5173</code> が使用中なら、<code>-iTCP:5173</code> の行だけを実行します。</p>
+        </div>
+
         <div class="command-block">
-          <div class="command-title"><span>PIDを指定して終了する</span><button class="copy-button" type="button">コピー</button></div>
+          <div class="command-title"><span>まず覚える実用パターン</span><button class="copy-button" type="button">コピー</button></div>
+          <pre><code># 3000番を使っている待ち受けプロセスを探す
+lsof -nP -iTCP:3000 -sTCP:LISTEN
+
+# 番号だけ変えて別ポートを見る
+lsof -nP -iTCP:5173 -sTCP:LISTEN
+
+# 表示されたCOMMANDとPIDを確認し、止めてよい開発サーバーなら実行する例
+kill 4821
+
+# 止まったかもう一度確認する
+lsof -nP -iTCP:3000 -sTCP:LISTEN</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>PIDを指定して終了する例</span><button class="copy-button" type="button">コピー</button></div>
           <pre><code>kill 4821
 # 止まらない時だけ
 kill -9 4821</code></pre>
@@ -688,7 +780,7 @@ kill -9 4821</code></pre>
 
         <div class="note">
           <strong><code>lsof</code> の読み方</strong>
-          <p><code>COMMAND</code> はコマンド名、<code>PID</code> はプロセス番号、<code>NAME</code> に <code>*:3000 (LISTEN)</code> のように出ていれば、そのプロセスがポート3000で待ち受けています。</p>
+          <p><code>4821</code> は例のPIDです。まず <code>COMMAND</code>、<code>PID</code>、<code>NAME</code> を見ます。止める前に、アプリ名やユーザー名から本当に自分が止めてよいプロセスか確認しましょう。</p>
         </div>
       </div>
     </section>
@@ -714,7 +806,7 @@ kill -9 4821</code></pre>
           <article class="card">
             <span class="tag">内向き</span>
             <h3>自分が待ち受けているか</h3>
-            <p><code>lsof</code> で、自分のMac上でどのプロセスがどのポートを使っているか確認します。</p>
+            <p><code>lsof</code> で、自分のMac上でどのプロセスがどのポートを使っているか確認します。<code>nc</code> は接続できるかを試す道具なので、役割が違います。</p>
           </article>
         </div>
 
