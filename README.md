@@ -22,10 +22,11 @@ https://akilab.github.io/mac-terminal-practice/
 - 環境変数、シェル設定、PATHの基礎トレーニング
 - Git / GitHubのブランチ、commit、push、Pull Request練習
 - プロセス、ジョブ、ポート、ネットワーク確認、ログ監視の基礎トレーニング
+- 権限、所有者、実行権限、`sudo` の基礎トレーニング
 
 ## 練習できる項目
 
-`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, `env`, `export`, `alias`, `git`, `ps`, `pgrep`, `top`, `kill`, `jobs`, `fg`, `lsof`, `nc`, リダイレクト, パイプ
+`pwd`, `ls`, `cd`, `mkdir`, `touch`, `cat`, `cp`, `mv`, `rm`, `grep`, `head`, `tail`, `less`, `wc`, `sort`, `uniq`, `cut`, `find`, `wget`, `curl`, `env`, `export`, `alias`, `git`, `ps`, `pgrep`, `top`, `kill`, `jobs`, `fg`, `lsof`, `nc`, `chmod`, `sudo`, `whoami`, `id`, リダイレクト, パイプ
 
 ## ファイル構成
 
@@ -39,6 +40,7 @@ https://akilab.github.io/mac-terminal-practice/
 - `mac-env-path-practice.html`: 環境変数、シェル設定、PATH練習ページ
 - `mac-git-practice.html`: Git / GitHub練習ページ
 - `mac-process-job-practice.html`: プロセス、ジョブ、ポート、ネットワーク確認練習ページ
+- `mac-permission-practice.html`: 権限、所有者、実行権限練習ページ
 
 ## 使い方
 
