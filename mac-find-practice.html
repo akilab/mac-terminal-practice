@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Find Practice</title>
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, input { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.4vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover, .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card, .note, .command-block, .trainer, .progress-panel, .option-table {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card { padding: 22px; }
+    .card h3 { margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong { color: var(--mint-dark); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--terminal);
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: .88rem;
+      line-height: 1.65;
+    }
+
+    .option-table {
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .practice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .trainer { overflow: hidden; }
+
+    .trainer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(241, 239, 232, .72);
+    }
+
+    .trainer-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      font-weight: 900;
+    }
+
+    .trainer-title code {
+      color: var(--rose-dark);
+      font-size: 1.06rem;
+    }
+
+    .trainer-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .exercise-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .exercise-no {
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .exercise-card p {
+      margin: 0;
+      color: #424650;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: .92rem;
+    }
+
+    .answer-input:focus {
+      border-color: var(--mint-dark);
+      outline: 3px solid rgba(207, 232, 220, .9);
+    }
+
+    .check-button {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button:focus-visible, .button:focus-visible {
+      outline: 3px solid rgba(201, 217, 238, .95);
+      outline-offset: 2px;
+    }
+
+    .result {
+      min-height: 1.6em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result.ok { color: var(--mint-dark); font-weight: 900; }
+    .result.ng { color: var(--rose-dark); font-weight: 900; }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .progress-panel {
+      position: sticky;
+      top: 72px;
+      padding: 18px;
+    }
+
+    .meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6e2d9;
+    }
+
+    .meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint-dark), var(--blue-dark));
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .lesson-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .lesson-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .lesson-list span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .practice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .progress-panel { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .input-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+      .meter span { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Find Practice</p>
+      <h1>findで、見つける。</h1>
+      <p class="hero-text">
+        <code>find</code> は、ファイルそのものを探すためのコマンドです。
+        名前、種類、深さ、更新日時、サイズで探し、最後は <code>grep</code> と組み合わせて「どのファイルに何があるか」まで調べます。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#setup">準備する</a>
+        <a class="button secondary" href="#options">オプションを見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="find練習のTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> find . -name "*.log"<br>
+          ./logs/app.log<br>
+          ./logs/api.log<br>
+          ./logs/security.log<br><br>
+          <span class="prompt">MacBook-Air %</span> find . -type f -name "*.log" | xargs grep ERROR<br>
+          ./logs/app.log:ERROR database timeout<br><br>
+          <span class="prompt">MacBook-Air %</span> find . -type f -mtime -7<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#setup">準備</a>
+      <a href="#options">基本オプション</a>
+      <a href="#safety">安全</a>
+      <a href="#practice-root">演習</a>
+      <a href="#lesson-grep">xargs連携</a>
+      <a href="#finish">まとめ</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Setup</span>
+            <h2>探索用のフォルダを作る</h2>
+          </div>
+          <p class="lead">
+            練習用の小さなプロジェクトを作ります。ファイル名、拡張子、フォルダ、ログ、設定ファイルが混ざった状態を用意します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>練習データを作成</span><span>Terminalで実行</span></div>
+          <pre><code>mkdir -p ~/practice/find-practice/{src,logs,config,docs,archive}
+cd ~/practice/find-practice
+touch README.md docs/guide.md docs/todo.txt
+touch src/app.py src/server.py src/app.test.py src/main.js
+touch config/app.conf config/dev.env config/prod.env
+touch logs/app.log logs/api.log logs/security.log archive/old.log
+printf "INFO start\nERROR database timeout\nWARN retry\n" &gt; logs/app.log
+printf "GET /api/users 200\nPOST /api/login 401\n" &gt; logs/api.log
+printf "DENY /admin\nALLOW /api/users\n" &gt; logs/security.log
+printf "DEBUG old job\n" &gt; archive/old.log</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>この教材の前提:</strong>
+          作業場所は <code>~/practice/find-practice</code> です。
+          削除や移動は扱わず、探す、絞る、確認する、grepにつなぐ練習だけを行います。
+        </div>
+      </div>
+    </section>
+
+    <section id="options">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Options</span>
+            <h2>findの基本オプション</h2>
+          </div>
+          <p class="lead">
+            <code>find 場所 条件</code> の順で考えます。最初の場所は、練習では現在地を表す <code>.</code> を使います。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>指定</th><th>意味</th><th>例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>.</code></td><td>現在のフォルダ以下を探す</td><td><code>find .</code></td></tr>
+              <tr><td><code>-name</code></td><td>名前で探す</td><td><code>find . -name "*.log"</code></td></tr>
+              <tr><td><code>-iname</code></td><td>大文字小文字を無視して名前で探す</td><td><code>find . -iname "readme*"</code></td></tr>
+              <tr><td><code>-type f</code></td><td>ファイルだけ探す</td><td><code>find . -type f</code></td></tr>
+              <tr><td><code>-type d</code></td><td>フォルダだけ探す</td><td><code>find . -type d</code></td></tr>
+              <tr><td><code>-maxdepth</code></td><td>探す深さを制限する</td><td><code>find . -maxdepth 1 -type f</code></td></tr>
+              <tr><td><code>-mtime</code></td><td>更新日で探す</td><td><code>find . -type f -mtime -7</code></td></tr>
+              <tr><td><code>-size</code></td><td>サイズで探す</td><td><code>find . -type f -size +1M</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="safety">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Safety</span>
+            <h2>まず表示だけで練習する</h2>
+          </div>
+          <p class="lead">
+            <code>find</code> は削除や実行にも使えますが、この教材では安全のため表示だけにします。
+            見つけた結果を確認してから、別のコマンドへ渡します。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">No Delete</span>
+            <h3><code>-delete</code> は使わない</h3>
+            <p>条件を間違えると多くのファイルを消す可能性があります。初心者教材では扱いません。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Preview</span>
+            <h3>先に一覧を見る</h3>
+            <p>まず <code>find . -name "*.log"</code> のように対象を表示し、意図通りか確認します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Pipe</span>
+            <h3>grepへつなぐ</h3>
+            <p>見つけたファイルを <code>xargs grep</code> に渡すと、中身の検索まで進めます。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div id="practice-root"></div>
+
+    <section id="finish">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Wrap Up</span>
+            <h2>まとめ: xargsで中身検索へ</h2>
+          </div>
+          <p class="lead">
+            「ファイル探しから中身探しへ」は、直前の <code>Find + xargs</code> 章で実際に打鍵練習します。
+            ここでは、今回覚えた基本形を最後に整理します。
+          </p>
+        </div>
+
+        <div class="note">
+            <code>find</code> はファイルを探し、<code>grep</code> は中身を探します。
+            <code>xargs</code> は、findで見つけたファイル一覧を次のコマンドに渡すための橋渡しです。
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>学んだ形</span><span>find + xargs grep</span></div>
+          <pre><code>find . -type f -name "*.log" | xargs grep ERROR
+find . -type f -name "*.py" | xargs grep "import"</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>探す条件の例</span><span>find only</span></div>
+          <pre><code>find . -type f -mtime -7
+find . -type f -size +1M</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const lessons = [
+      {
+        id: "basic",
+        label: "Basic",
+        title: "現在地から探す",
+        summary: "まずは現在のフォルダ以下を対象にして、findの基本形に慣れます。",
+        sample: "find .\nfind . -type f\nfind . -type d",
+        exercises: [
+          ["現在のフォルダ以下をすべて表示してください。", ["find ."], ". は現在地です。"],
+          ["現在のフォルダ以下からファイルだけを表示してください。", ["find . -type f"], "-type fでファイルです。"],
+          ["現在のフォルダ以下からフォルダだけを表示してください。", ["find . -type d"], "-type dでフォルダです。"],
+          ["現在のフォルダ直下だけを表示してください。", ["find . -maxdepth 1"], "-maxdepth 1で深く潜りません。"],
+          ["現在のフォルダ直下のファイルだけを表示してください。", ["find . -maxdepth 1 -type f"], "深さと種類を組み合わせます。"]
+        ]
+      },
+      {
+        id: "name",
+        label: "Name",
+        title: "名前で探す",
+        summary: "ファイル名、拡張子、パターンを使って探します。",
+        sample: "find . -name \"*.log\"\nfind . -name \"app*\"\nfind . -iname \"readme*\"",
+        exercises: [
+          [".logファイルを探してください。", ["find . -name \"*.log\"", "find . -name '*.log'"], "パターンは引用符で囲みます。"],
+          [".pyファイルを探してください。", ["find . -name \"*.py\"", "find . -name '*.py'"], "Pythonファイルを探します。"],
+          ["appで始まるファイルを探してください。", ["find . -name \"app*\"", "find . -name 'app*'"], "app.logやapp.pyに一致します。"],
+          ["READMEを大文字小文字を無視して探してください。", ["find . -iname \"readme*\"", "find . -iname 'readme*'"], "-inameは大文字小文字を無視します。"],
+          [".envファイルを探してください。", ["find . -name \"*.env\"", "find . -name '*.env'"], "設定ファイル探しの例です。"]
+        ]
+      },
+      {
+        id: "type",
+        label: "Type",
+        title: "種類で絞る",
+        summary: "名前だけでなく、ファイルかフォルダかを絞ります。",
+        sample: "find . -type f -name \"*.log\"\nfind . -type d -name \"logs\"\nfind . -type f -name \"*.conf\"",
+        exercises: [
+          ["ファイルだけに絞って.logを探してください。", ["find . -type f -name \"*.log\"", "find . -type f -name '*.log'"], "ログファイルだけを対象にします。"],
+          ["フォルダだけに絞ってlogsを探してください。", ["find . -type d -name logs", "find . -type d -name \"logs\""], "フォルダ名を探します。"],
+          ["ファイルだけに絞って.confを探してください。", ["find . -type f -name \"*.conf\"", "find . -type f -name '*.conf'"], "設定ファイルの例です。"],
+          ["フォルダだけに絞ってarchiveを探してください。", ["find . -type d -name archive", "find . -type d -name \"archive\""], "アーカイブフォルダを探します。"],
+          ["ファイルだけに絞ってtestを含む名前を探してください。", ["find . -type f -name \"*test*\"", "find . -type f -name '*test*'"], "テストファイル探しです。"]
+        ]
+      },
+      {
+        id: "depth",
+        label: "Depth",
+        title: "探す深さを調整する",
+        summary: "深く探しすぎると結果が多くなります。まず浅く探す練習をします。",
+        sample: "find . -maxdepth 1 -type f\nfind . -maxdepth 2 -name \"*.log\"\nfind logs -maxdepth 1 -type f",
+        exercises: [
+          ["現在地直下のファイルだけを表示してください。", ["find . -maxdepth 1 -type f"], "直下だけを見る基本です。"],
+          ["深さ2までで.logを探してください。", ["find . -maxdepth 2 -name \"*.log\"", "find . -maxdepth 2 -name '*.log'"], "深さを制限して探します。"],
+          ["logsフォルダ直下のファイルだけを表示してください。", ["find logs -maxdepth 1 -type f"], "探す場所をlogsにします。"],
+          ["configフォルダ直下の.envを探してください。", ["find config -maxdepth 1 -name \"*.env\"", "find config -maxdepth 1 -name '*.env'"], "場所、深さ、名前を組み合わせます。"],
+          ["現在地直下のフォルダだけを表示してください。", ["find . -maxdepth 1 -type d"], "直下のフォルダ確認です。"]
+        ]
+      },
+      {
+        id: "time-size",
+        label: "Time & Size",
+        title: "更新日時とサイズで探す",
+        summary: "最近更新されたファイルや、大きいファイルを探す方法です。",
+        sample: "find . -type f -mtime -7\nfind . -type f -mtime +30\nfind . -type f -size +1M",
+        exercises: [
+          ["7日以内に更新されたファイルを探してください。", ["find . -type f -mtime -7"], "-mtime -7で7日以内です。"],
+          ["30日より前に更新されたファイルを探してください。", ["find . -type f -mtime +30"], "+30で30日より古いものです。"],
+          ["1MBより大きいファイルを探してください。", ["find . -type f -size +1M"], "-size +1Mです。"],
+          ["1KBより小さいファイルを探してください。", ["find . -type f -size -1k"], "-size -1kです。"],
+          ["今日更新されたログファイルを探してください。", ["find . -type f -name \"*.log\" -mtime -1", "find . -type f -name '*.log' -mtime -1"], "名前と更新日時を組み合わせます。"]
+        ]
+      },
+      {
+        id: "combine",
+        label: "Combine",
+        title: "条件を組み合わせる",
+        summary: "実務では、名前、種類、場所、深さを組み合わせて探します。",
+        sample: "find . -type f -name \"*.py\" -maxdepth 3\nfind src -type f -name \"*.py\"\nfind . -type f -name \"*.log\" -size -1M",
+        exercises: [
+          ["srcフォルダ配下の.pyファイルを探してください。", ["find src -type f -name \"*.py\"", "find src -type f -name '*.py'"], "場所をsrcにします。"],
+          ["configフォルダ配下の.envファイルを探してください。", ["find config -type f -name \"*.env\"", "find config -type f -name '*.env'"], "設定ファイルを探します。"],
+          ["1MBより小さい.logファイルを探してください。", ["find . -type f -name \"*.log\" -size -1M", "find . -type f -name '*.log' -size -1M"], "サイズ条件も追加できます。"],
+          ["深さ3までで.pyファイルを探してください。", ["find . -maxdepth 3 -type f -name \"*.py\"", "find . -maxdepth 3 -type f -name '*.py'"], "深さ制限を入れます。"],
+          ["archiveフォルダ配下の.logファイルを探してください。", ["find archive -type f -name \"*.log\"", "find archive -type f -name '*.log'"], "場所をarchiveに限定します。"]
+        ]
+      },
+      {
+        id: "grep",
+        label: "Find + xargs",
+        title: "ファイル探しから中身探しへ",
+        summary: "findで見つけたファイル一覧をxargs grepへ渡し、対象ファイルの中身まで検索します。",
+        sample: "find . -type f -name \"*.log\" | xargs grep ERROR\nfind . -type f -name \"*.py\" | xargs grep import",
+        exercises: [
+          [".logファイルからERRORを検索してください。", ["find . -type f -name \"*.log\" | xargs grep ERROR", "find . -type f -name '*.log' | xargs grep ERROR"], "find結果をxargs grepへ渡します。"],
+          [".logファイルからWARNを検索してください。", ["find . -type f -name \"*.log\" | xargs grep WARN", "find . -type f -name '*.log' | xargs grep WARN"], "ログの警告を探します。"],
+          [".pyファイルからimportを検索してください。", ["find . -type f -name \"*.py\" | xargs grep import", "find . -type f -name '*.py' | xargs grep import"], "Pythonのimport調査です。"],
+          ["設定ファイルからdevを検索してください。", ["find config -type f | xargs grep dev"], "config配下の全ファイルをgrepします。"],
+          [".logファイルからERRORを行番号付きで検索してください。", ["find . -type f -name \"*.log\" | xargs grep -n ERROR", "find . -type f -name '*.log' | xargs grep -n ERROR"], "grep -nを組み合わせます。"]
+        ]
+      },
+      {
+        id: "safe-final",
+        label: "Final",
+        title: "安全に調査結果を保存する",
+        summary: "findの結果を確認し、必要ならファイルに保存します。削除はしません。",
+        sample: "find . -type f -name \"*.log\" > log-files.txt\nfind . -type f -mtime -7 > recent-files.txt",
+        exercises: [
+          [".logファイル一覧をlog-files.txtに保存してください。", ["find . -type f -name \"*.log\" > log-files.txt", "find . -type f -name '*.log' > log-files.txt"], "検索結果を保存します。"],
+          ["7日以内に更新されたファイル一覧をrecent-files.txtに保存してください。", ["find . -type f -mtime -7 > recent-files.txt"], "最近の変更を保存します。"],
+          ["1MBより大きいファイル一覧をlarge-files.txtに保存してください。", ["find . -type f -size +1M > large-files.txt"], "大きいファイル探しです。"],
+          ["ERRORを含むログ行をerror-lines.txtに保存してください。", ["find . -type f -name \"*.log\" | xargs grep ERROR > error-lines.txt", "find . -type f -name '*.log' | xargs grep ERROR > error-lines.txt"], "findとgrepとリダイレクトです。"],
+          ["保存したlog-files.txtの中身を表示してください。", ["cat log-files.txt"], "最後に結果を確認します。"]
+        ]
+      }
+    ];
+
+    const root = document.querySelector("#practice-root");
+    const solved = new Set();
+    const total = lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0);
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function lessonProgress(lesson) {
+      return lesson.exercises.filter((_, index) => solved.has(`${lesson.id}-${index}`)).length;
+    }
+
+    function updateProgress() {
+      const done = solved.size;
+      const percent = Math.round((done / total) * 100);
+      document.querySelectorAll("[data-total-progress]").forEach((element) => {
+        element.textContent = `${done} / ${total}問 正解`;
+      });
+      document.querySelectorAll("[data-total-meter]").forEach((element) => {
+        element.style.width = `${percent}%`;
+      });
+      lessons.forEach((lesson) => {
+        const count = lessonProgress(lesson);
+        document.querySelectorAll(`[data-lesson-progress="${lesson.id}"]`).forEach((element) => {
+          element.textContent = `${count} / ${lesson.exercises.length}`;
+        });
+      });
+    }
+
+    function makeExercises(lesson) {
+      return lesson.exercises.map(([question, answers, hint], index) => {
+        const answerText = answers.length === 1 ? answers[0] : answers.slice(0, 2).join(" または ");
+        return `
+          <article class="exercise-card" data-exercise="${lesson.id}-${index}">
+            <div class="exercise-head">
+              <span class="exercise-no">${lesson.label} ${String(index + 1).padStart(2, "0")}</span>
+              <span class="mini">例: <code>${escapeHtml(answerText)}</code></span>
+            </div>
+            <p>${escapeHtml(question)}</p>
+            <div class="input-row">
+              <input class="answer-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="${escapeHtml(lesson.title)}の練習${index + 1}" data-answers="${escapeHtml(JSON.stringify(answers))}" placeholder="$ ">
+              <button class="check-button" type="button">確認</button>
+            </div>
+            <p class="result" aria-live="polite"></p>
+            <p class="hint">ヒント: ${escapeHtml(hint)}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      root.innerHTML = lessons.map((lesson, lessonIndex) => `
+        <section id="lesson-${lesson.id}">
+          <div class="page">
+            <div class="section-head">
+              <div>
+                <span class="section-label">${escapeHtml(lesson.label)}</span>
+                <h2>${escapeHtml(lesson.title)}</h2>
+              </div>
+              <p class="lead">${escapeHtml(lesson.summary)}</p>
+            </div>
+
+            <div class="practice-layout">
+              <div>
+                <div class="command-block">
+                  <div class="command-title"><span>入力例</span><span>${escapeHtml(lesson.label)}</span></div>
+                  <pre><code>${escapeHtml(lesson.sample)}</code></pre>
+                </div>
+
+                <div class="trainer">
+                  <div class="trainer-top">
+                    <div class="trainer-title">
+                      <code>${escapeHtml(lesson.id)}</code>
+                      <span>${lesson.exercises.length}問</span>
+                    </div>
+                    <span class="mini">この章: <strong data-lesson-progress="${lesson.id}">0 / ${lesson.exercises.length}</strong></span>
+                  </div>
+                  <div class="trainer-body">
+                    ${makeExercises(lesson)}
+                  </div>
+                </div>
+              </div>
+
+              <aside class="progress-panel" aria-label="練習進捗">
+                <h3>進捗</h3>
+                <div class="meter" aria-hidden="true"><span data-total-meter></span></div>
+                <p class="progress-text" data-total-progress>0 / ${total}問 正解</p>
+                <p class="mini">正解したら、同じコマンドをTerminalでも実行し、出力を見比べます。</p>
+                <div class="lesson-list">
+                  ${lessons.map((item) => `
+                    <a href="#lesson-${item.id}"><code>${escapeHtml(item.label)}</code><span data-lesson-progress="${item.id}">0 / ${item.exercises.length}</span></a>
+                  `).join("")}
+                </div>
+                <div class="hero-actions" style="margin-top:16px;">
+                  ${lessonIndex > 0 ? `<a class="button secondary" href="#lesson-${lessons[lessonIndex - 1].id}">前へ</a>` : `<a class="button secondary" href="#safety">安全へ</a>`}
+                  ${lessonIndex < lessons.length - 1 ? `<a class="button" href="#lesson-${lessons[lessonIndex + 1].id}">次へ</a>` : `<a class="button" href="#finish">仕上げへ</a>`}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `).join("");
+
+      document.querySelectorAll(".exercise-card").forEach((card) => {
+        const input = card.querySelector(".answer-input");
+        const button = card.querySelector(".check-button");
+        const result = card.querySelector(".result");
+        const key = card.dataset.exercise;
+
+        function check() {
+          const answers = JSON.parse(input.dataset.answers).map(normalize);
+          const value = normalize(input.value);
+          if (answers.includes(value)) {
+            solved.add(key);
+            card.style.borderColor = "rgba(34, 99, 81, .45)";
+            result.textContent = "OKです。実際のTerminalでも実行して、出力を確認しましょう。";
+            result.className = "result ok";
+          } else {
+            result.textContent = "もう一度。場所、条件、引用符、ファイル名を確認してください。";
+            result.className = "result ng";
+          }
+          updateProgress();
+        }
+
+        button.addEventListener("click", check);
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            check();
+          }
+        });
+      });
+
+      updateProgress();
+    }
+
+    render();
+  </script>
+</body>
+</html>

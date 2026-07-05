@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Terminal Practice</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+
+    code,
+    pre,
+    input {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 11ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3.1rem, 8vw, 7.4rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .button.ghost {
+      border-color: rgba(33, 35, 42, .2);
+      background: rgba(255, 255, 255, .72);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .88rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card,
+    .note,
+    .command-block,
+    .trainer,
+    .option-table,
+    .progress-panel {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card { padding: 22px; }
+    .card h3 { margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong { color: var(--mint-dark); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--terminal);
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: .9rem;
+      line-height: 1.65;
+    }
+
+    .steps {
+      counter-reset: steps;
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: steps;
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .68);
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .steps strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .steps p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .practice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .trainer {
+      overflow: hidden;
+    }
+
+    .trainer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(241, 239, 232, .72);
+    }
+
+    .trainer-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      font-weight: 900;
+    }
+
+    .trainer-title code {
+      color: var(--rose-dark);
+      font-size: 1.06rem;
+    }
+
+    .trainer-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .exercise-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .exercise-no {
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .exercise-card p {
+      margin: 0;
+      color: #424650;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: .95rem;
+    }
+
+    .answer-input:focus {
+      border-color: var(--mint-dark);
+      outline: 3px solid rgba(207, 232, 220, .9);
+    }
+
+    .check-button {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button:focus-visible,
+    .button:focus-visible {
+      outline: 3px solid rgba(201, 217, 238, .95);
+      outline-offset: 2px;
+    }
+
+    .result {
+      min-height: 1.6em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result.ok { color: var(--mint-dark); font-weight: 900; }
+    .result.ng { color: var(--rose-dark); font-weight: 900; }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .hint code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .option-table {
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .progress-panel {
+      position: sticky;
+      top: 72px;
+      padding: 18px;
+    }
+
+    .progress-panel h3 {
+      margin-bottom: 8px;
+    }
+
+    .meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6e2d9;
+    }
+
+    .meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint-dark), var(--blue-dark));
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .command-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .command-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .command-list span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .warning {
+      border-left: 5px solid var(--rose-dark);
+      background: rgba(233, 183, 189, .22);
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .sources {
+      padding: 34px 0 56px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-head,
+      .grid.two,
+      .grid.three,
+      .practice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+
+      .progress-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 24px, 1160px);
+      }
+
+      .toc .page {
+        width: 100%;
+        padding-left: 12px;
+      }
+
+      section { padding: 48px 0; }
+
+      .steps li {
+        grid-template-columns: 42px 1fr;
+      }
+
+      .steps li::before {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+      }
+
+      .input-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+      .meter span { transition: none; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .toc,
+      .hero-actions,
+      .check-button,
+      .progress-panel { display: none; }
+      section,
+      .hero {
+        break-inside: avoid;
+        padding: 28px 0;
+      }
+      .answer-input { border-color: #bbb; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Terminal Practice</p>
+      <h1>Terminalを、手で覚える。</h1>
+      <p class="hero-text">
+        Macを使ってUNIXコマンドに慣れるための練習ページです。
+        まずコマンドの役割とよく使うオプションを確認し、必要な回数だけ打鍵してから次へ進みます。
+        本物のTerminalで実行する前に、このページで入力の型を作ります。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#start">練習を始める</a>
+        <a class="button secondary" href="#rules">安全ルールを見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="Terminal練習用の端末イメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> pwd<br>
+          /Users/yourname/practice<br>
+          <span class="prompt">MacBook-Air %</span> ls -la<br>
+          drwxr-xr-x  notes<br>
+          -rw-r--r--  memo.txt<br>
+          <span class="prompt">MacBook-Air %</span> mkdir terminal-lab<br>
+          <span class="prompt">MacBook-Air %</span> cd terminal-lab<span class="cursor"></span><br><br>
+          <strong>Goal:</strong> read, type, check, repeat.
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page" id="nav-links">
+      <a href="#rules">安全ルール</a>
+      <a href="#start">始め方</a>
+      <a href="#cmd-pwd">pwd</a>
+      <a href="#cmd-ls">ls</a>
+      <a href="#cmd-cd">cd</a>
+      <a href="#cmd-mkdir">mkdir</a>
+      <a href="#cmd-touch">touch</a>
+      <a href="#cmd-cat">cat</a>
+      <a href="#cmd-cp">cp</a>
+      <a href="#cmd-mv">mv</a>
+      <a href="#cmd-rm">rm</a>
+      <a href="#cmd-grep">grep</a>
+      <a href="#cmd-head">head</a>
+      <a href="#cmd-tail">tail</a>
+      <a href="#cmd-less">less</a>
+      <a href="#cmd-wc">wc</a>
+      <a href="#cmd-sort">sort</a>
+      <a href="#cmd-uniq">uniq</a>
+      <a href="#cmd-cut">cut</a>
+      <a href="#cmd-find">find</a>
+      <a href="#cmd-curl">curl</a>
+      <a href="#cmd-redirect">リダイレクト</a>
+      <a href="#cmd-pipe">パイプ</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="rules">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Safety First</span>
+            <h2>壊さない練習場を作る</h2>
+          </div>
+          <p class="lead">
+            Terminalは強力です。最初は専用フォルダの中だけで練習します。
+            特に削除コマンドは、意味を理解してから使います。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Practice Folder</span>
+            <h3>練習用フォルダでだけ実行する</h3>
+            <p>ホームディレクトリ直下に <code>practice</code> を作り、その中で練習します。業務ファイルがある場所では試しません。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Read Before Enter</span>
+            <h3>Enter前にコマンドを読む</h3>
+            <p><code>rm</code>、<code>mv</code>、<code>cp</code> はファイルを変化させます。何を対象にしているかを読んでから実行します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Path Sense</span>
+            <h3>現在地を確認する癖をつける</h3>
+            <p>迷ったらまず <code>pwd</code>。どこにいるかを確認してから、次の操作に進みます。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>最初に作る練習場</span><span>Terminalで実行</span></div>
+          <pre><code>cd ~
+mkdir practice
+cd practice
+pwd</code></pre>
+        </div>
+
+        <div class="note warning">
+          <strong>注意:</strong>
+          この教材では <code>sudo</code>、<code>rm -rf /</code>、システム設定を変えるコマンドは扱いません。
+          まずは「見る」「移動する」「作る」「コピーする」「名前を変える」「安全に消す」だけに集中します。
+        </div>
+      </div>
+    </section>
+
+    <section id="start">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">How To Practice</span>
+            <h2>読む、打つ、確かめる</h2>
+          </div>
+          <p class="lead">
+            各コマンドは同じ構成です。役割を読み、よく使うオプションだけ確認し、必要な回数だけ入力します。
+            入力欄は本物のTerminalではありません。打鍵練習と理解チェック用です。
+          </p>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <div>
+              <strong>説明を読む</strong>
+              <p>そのコマンドが「何をするためのものか」を先に押さえます。暗記より用途の理解を優先します。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>オプションを少しだけ覚える</strong>
+              <p>最初から全部は不要です。現場でよく使うものだけに絞ります。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>手で打つ</strong>
+              <p>入力して「確認」を押します。単発の確認コマンドは少なく、操作に慣れたいコマンドは多めに練習します。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>本物のTerminalで試す</strong>
+              <p>慣れてきたら練習用フォルダの中で実行します。結果を見て、コマンドとファイル操作を結びつけます。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <div id="practice-root"></div>
+
+    <section id="finish">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Next Step</span>
+            <h2>次に覚える候補</h2>
+          </div>
+          <p class="lead">
+            ここまでの基本コマンドに慣れたら、開発作業でよく使うコマンドへ進みます。
+            ただし、急がず「現在地」「対象」「実行結果」を読む癖を保ちます。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Text Power</span>
+            <h3><code>sed</code> / <code>awk</code></h3>
+            <p>文字列の置換、列ごとの加工、集計に使います。便利ですが表現力が高いので、基本操作に慣れてから進みます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">System</span>
+            <h3><code>ps</code> / <code>top</code> / <code>kill</code></h3>
+            <p>実行中のプロセスを確認し、必要に応じて終了します。開発サーバーが止まらない時などに役立ちます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Archive & Remote</span>
+            <h3><code>tar</code> / <code>ssh</code> / <code>scp</code></h3>
+            <p>ファイルをまとめる、リモート環境へ接続する、ファイルを転送するためのコマンドです。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Permissions</span>
+            <h3><code>chmod</code> / <code>chown</code></h3>
+            <p>権限や所有者を変更します。間違えると動作に影響するため、ファイル操作に慣れてから扱います。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Batch</span>
+            <h3><code>xargs</code></h3>
+            <p>検索結果や一覧を、別のコマンドの引数として渡します。パイプの次に学ぶと理解しやすいです。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Version Control</span>
+            <h3><code>git</code></h3>
+            <p>ソースコードの変更を記録する道具です。Terminal操作に慣れてから始めると理解が速くなります。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="page sources">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.5rem);">練習メモ</h2>
+      <p class="mini">
+        GitHub Pagesでそのまま公開できる単一HTMLです。入力チェックはブラウザ内だけで動き、入力内容は外部へ送信されません。
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const commands = [
+      {
+        id: "pwd",
+        name: "pwd",
+        label: "Print Working Directory",
+        title: "現在地を表示する",
+        summary: "今Terminalが見ているフォルダの場所を表示します。迷子になったら最初に使うコマンドです。",
+        options: [
+          ["オプションなし", "現在のディレクトリを絶対パスで表示します。最初はこれだけで十分です。"],
+          ["-P", "シンボリックリンクを解決した物理的なパスを表示します。普段は必要になった時だけ使います。"]
+        ],
+        sample: "pwd\n/Users/yourname/practice",
+        tips: "Macではホームディレクトリはだいたい /Users/ユーザー名 です。~ は自分のホームを表します。",
+        exercises: [
+          ["現在地を表示してください。", ["pwd"], "まずはオプションなしです。"]
+        ]
+      },
+      {
+        id: "ls",
+        name: "ls",
+        label: "List",
+        title: "中身を一覧する",
+        summary: "現在のフォルダや指定したフォルダの中身を表示します。ファイルがあるか、名前が正しいかを確認できます。",
+        options: [
+          ["-l", "詳細表示。権限、所有者、サイズ、更新日時などを表示します。"],
+          ["-a", "隠しファイルも表示します。.git や .env など、先頭が . のファイルを見る時に使います。"],
+          ["-h", "-l と組み合わせるとサイズが読みやすくなります。例: ls -lh"],
+          ["-R", "下の階層まで再帰的に表示します。大量に出ることがあるので注意します。"]
+        ],
+        sample: "ls\nnotes  memo.txt\n\nls -la\ndrwxr-xr-x  notes\n-rw-r--r--  memo.txt",
+        tips: "よく使う形は ls、ls -l、ls -la、ls -lh です。オプションはまとめて ls -lah のように書けます。",
+        exercises: [
+          ["現在のフォルダの中身を一覧してください。", ["ls"], "基本はオプションなしです。"],
+          ["詳細付きで一覧してください。", ["ls -l"], "longのlです。"],
+          ["隠しファイルも含めて一覧してください。", ["ls -a"], "allのaです。"],
+          ["隠しファイルを含め、詳細付きで一覧してください。", ["ls -la", "ls -al"], "lとaは順番を入れ替えても同じです。"],
+          ["サイズを読みやすくして詳細表示してください。", ["ls -lh", "ls -hl"], "human readableのhを使います。"],
+          ["practiceフォルダの中身を一覧してください。", ["ls ~/practice", "ls practice", "ls ./practice"], "lsの後ろに場所を指定します。"],
+          ["Downloadsフォルダの中身を詳細表示してください。", ["ls -l Downloads"], "オプション、場所の順です。"],
+          ["現在のフォルダ以下を再帰的に一覧してください。", ["ls -R"], "大量表示に注意するオプションです。"],
+          ["隠しファイル込みで、サイズも読みやすく、詳細表示してください。", ["ls -lah", "ls -lha", "ls -alh", "ls -ahl", "ls -hal", "ls -hla", "ls -l -a -h", "ls -a -l -h"], "l、a、hを組み合わせます。"],
+          ["notesフォルダの中身を一覧してください。", ["ls notes", "ls ./notes"], "対象フォルダ名を後ろにつけます。"]
+        ]
+      },
+      {
+        id: "cd",
+        name: "cd",
+        label: "Change Directory",
+        title: "フォルダを移動する",
+        summary: "Terminalの現在地を別のフォルダへ移します。Finderでフォルダを開く操作に近いですが、文字で移動します。",
+        options: [
+          ["cd フォルダ名", "指定したフォルダへ移動します。例: cd Downloads"],
+          ["cd ..", "ひとつ上のフォルダへ戻ります。"],
+          ["cd ~", "自分のホームディレクトリへ移動します。"],
+          ["cd -", "直前にいたフォルダへ戻ります。行ったり来たりする時に便利です。"]
+        ],
+        sample: "cd ~/practice\npwd\n/Users/yourname/practice\ncd ..\npwd\n/Users/yourname",
+        tips: "移動したら pwd、一覧したい時は ls。cd、pwd、ls は三点セットで練習します。",
+        exercises: [
+          ["practiceフォルダへ移動してください。", ["cd practice", "cd ~/practice"], "ホームからなら cd practice で移動できます。"],
+          ["Downloadsフォルダへ移動してください。", ["cd Downloads", "cd ~/Downloads"], "ダウンロードしたファイルを見る時によく使います。"],
+          ["ひとつ上のフォルダへ移動してください。", ["cd .."], "点2つです。"],
+          ["ホームディレクトリへ移動してください。", ["cd ~", "cd"], "cdだけでもホームへ戻ります。"],
+          ["直前にいたフォルダへ戻ってください。", ["cd -"], "ハイフンを使います。"],
+          ["Documentsフォルダへ移動してください。", ["cd Documents", "cd ~/Documents"], "書類フォルダです。"],
+          ["practiceフォルダの中のday1へ移動してください。", ["cd practice/day1", "cd ./practice/day1"], "スラッシュで階層をつなぎます。"],
+          ["現在地の中にあるnotesフォルダへ移動してください。", ["cd notes", "cd ./notes"], "相対パスで移動します。"],
+          ["ルートディレクトリへ移動してください。", ["cd /"], "一番上の階層です。"],
+          ["ホームディレクトリ直下のpracticeへ移動してください。", ["cd ~/practice"], "~から始めるとどこからでも移動できます。"]
+        ]
+      },
+      {
+        id: "mkdir",
+        name: "mkdir",
+        label: "Make Directory",
+        title: "フォルダを作る",
+        summary: "新しいフォルダを作ります。演習用の場所、プロジェクト用の場所、ログ置き場などを作る時に使います。",
+        options: [
+          ["-p", "途中のフォルダがなくてもまとめて作ります。すでに存在していてもエラーにしません。"],
+          ["複数指定", "mkdir a b c のように複数フォルダを一度に作れます。"]
+        ],
+        sample: "mkdir notes\nmkdir -p project/src/components\nls",
+        tips: "フォルダ名にスペースを入れると少し面倒になります。練習では英小文字、数字、ハイフンを使うと安全です。",
+        exercises: [
+          ["notesフォルダを作ってください。", ["mkdir notes"], "mkdirの後ろにフォルダ名です。"],
+          ["practiceフォルダを作ってください。", ["mkdir practice"], "作る対象はフォルダです。"],
+          ["day1とday2を一度に作ってください。", ["mkdir day1 day2"], "スペースで複数指定します。"],
+          ["project/srcをまとめて作ってください。", ["mkdir -p project/src"], "途中のprojectも作るには-pです。"],
+          ["logs/2026/06をまとめて作ってください。", ["mkdir -p logs/2026/06"], "深い階層は-pが便利です。"],
+          ["backupフォルダを作ってください。", ["mkdir backup"], "バックアップ置き場の例です。"],
+          ["data/rawとdata/processedをまとめて作ってください。", ["mkdir -p data/raw data/processed"], "複数の深い階層も作れます。"],
+          ["sandboxフォルダを作ってください。", ["mkdir sandbox"], "実験用フォルダです。"],
+          ["src/componentsフォルダをまとめて作ってください。", ["mkdir -p src/components"], "srcがなくても作れます。"],
+          ["tmpフォルダとoutputフォルダを一度に作ってください。", ["mkdir tmp output"], "mkdir tmp output の形です。"]
+        ]
+      },
+      {
+        id: "touch",
+        name: "touch",
+        label: "Touch",
+        title: "空ファイルを作る",
+        summary: "ファイルがなければ空ファイルを作ります。すでにあるファイルに使うと更新日時を変更します。",
+        options: [
+          ["オプションなし", "空ファイルを作ります。練習ではこの使い方が中心です。"],
+          ["複数指定", "touch a.txt b.txt のように複数ファイルを一度に作れます。"]
+        ],
+        sample: "touch memo.txt\ntouch index.html style.css\nls -l",
+        tips: "touchは中身を書きません。中身を見るのはcat、編集するのはVS Codeなどのエディタです。",
+        exercises: [
+          ["memo.txtを作ってください。", ["touch memo.txt"], "拡張子まで入力します。"],
+          ["notes.mdを作ってください。", ["touch notes.md"], "Markdownファイルの例です。"],
+          ["index.htmlを作ってください。", ["touch index.html"], "Webページの入口によく使う名前です。"],
+          ["app.pyを作ってください。", ["touch app.py"], "Pythonファイルの例です。"],
+          ["README.mdを作ってください。", ["touch README.md"], "大文字小文字も名前の一部です。"],
+          ["a.txtとb.txtを一度に作ってください。", ["touch a.txt b.txt"], "複数指定できます。"],
+          ["data.csvを作ってください。", ["touch data.csv"], "CSVファイルの例です。"],
+          ["src/main.jsを作ってください。", ["touch src/main.js"], "srcフォルダがある前提です。"],
+          ["log.txtを作ってください。", ["touch log.txt"], "ログ用ファイルの例です。"],
+          ["todo.txtとdone.txtを一度に作ってください。", ["touch todo.txt done.txt"], "スペースで並べます。"]
+        ]
+      },
+      {
+        id: "cat",
+        name: "cat",
+        label: "Concatenate",
+        title: "ファイルの中身を表示する",
+        summary: "短いテキストファイルの中身をTerminalに表示します。設定ファイルやメモの確認に使います。",
+        options: [
+          ["-n", "行番号を付けて表示します。説明や確認に便利です。"],
+          ["複数指定", "cat a.txt b.txt のように複数ファイルを続けて表示できます。"]
+        ],
+        sample: "cat memo.txt\ncat -n notes.md\ncat header.txt body.txt",
+        tips: "大きいログをcatすると画面が流れます。長いファイルはless、末尾だけならtailを使うと見やすいです。",
+        exercises: [
+          ["memo.txtの中身を表示してください。", ["cat memo.txt"], "catの後ろにファイル名です。"],
+          ["notes.mdの中身を表示してください。", ["cat notes.md"], "Markdownファイルを表示します。"],
+          ["config.jsonの中身を表示してください。", ["cat config.json"], "設定ファイル確認の例です。"],
+          ["行番号付きでmemo.txtを表示してください。", ["cat -n memo.txt"], "-nを使います。"],
+          ["a.txtとb.txtを続けて表示してください。", ["cat a.txt b.txt"], "複数ファイルを並べます。"],
+          ["README.mdの中身を表示してください。", ["cat README.md"], "README確認の例です。"],
+          ["src/main.jsの中身を表示してください。", ["cat src/main.js"], "パス付きで指定します。"],
+          ["行番号付きでnotes.mdを表示してください。", ["cat -n notes.md"], "レビュー時に便利です。"],
+          ["log.txtの中身を表示してください。", ["cat log.txt"], "短いログならcatで確認できます。"],
+          ["header.txtとbody.txtとfooter.txtを続けて表示してください。", ["cat header.txt body.txt footer.txt"], "順番に表示されます。"]
+        ]
+      },
+      {
+        id: "cp",
+        name: "cp",
+        label: "Copy",
+        title: "ファイルやフォルダをコピーする",
+        summary: "ファイルを複製します。作業前のバックアップや、テンプレートからのコピーに使います。",
+        options: [
+          ["-r", "フォルダを中身ごとコピーします。directory copyではほぼ必須です。"],
+          ["-i", "上書き前に確認します。初心者のうちは安全策として便利です。"],
+          ["-v", "何をコピーしたか表示します。処理の確認に使います。"]
+        ],
+        sample: "cp memo.txt memo-backup.txt\ncp -r project project-backup\ncp -i settings.json settings.backup.json",
+        tips: "cp 元 先 の順です。順番を逆にしないことが大切です。",
+        exercises: [
+          ["memo.txtをmemo-backup.txtとしてコピーしてください。", ["cp memo.txt memo-backup.txt"], "元、先の順です。"],
+          ["notes.mdをnotes-copy.mdとしてコピーしてください。", ["cp notes.md notes-copy.md"], "コピー元を先に書きます。"],
+          ["settings.jsonをbackup.jsonとしてコピーしてください。", ["cp settings.json backup.json"], "ファイル名を変えたコピーです。"],
+          ["image.pngをassetsフォルダへコピーしてください。", ["cp image.png assets/"], "コピー先がフォルダです。"],
+          ["上書き確認しながらmemo.txtをmemo-old.txtへコピーしてください。", ["cp -i memo.txt memo-old.txt"], "-iで確認します。"],
+          ["コピー内容を表示しながらa.txtをb.txtへコピーしてください。", ["cp -v a.txt b.txt"], "-vで表示します。"],
+          ["projectフォルダをproject-backupへ中身ごとコピーしてください。", ["cp -r project project-backup"], "フォルダは-rです。"],
+          ["srcフォルダをsrc-copyへ中身ごとコピーしてください。", ["cp -r src src-copy"], "再帰コピーです。"],
+          ["memo.txtとnotes.mdをbackupフォルダへコピーしてください。", ["cp memo.txt notes.md backup/"], "複数ファイルのコピー先はフォルダです。"],
+          ["上書き確認しながら、フォルダprojectをproject-safeへコピーしてください。", ["cp -ri project project-safe", "cp -ir project project-safe"], "-rと-iを組み合わせます。"]
+        ]
+      },
+      {
+        id: "mv",
+        name: "mv",
+        label: "Move",
+        title: "移動する、名前を変える",
+        summary: "ファイルやフォルダを移動します。同じ場所で別名を指定すると名前変更になります。",
+        options: [
+          ["-i", "上書き前に確認します。安全に名前変更や移動をしたい時に使います。"],
+          ["-v", "何を移動したか表示します。"]
+        ],
+        sample: "mv memo.txt notes/memo.txt\nmv old-name.txt new-name.txt\nmv -i report.txt archive/report.txt",
+        tips: "mvも 元 先 の順です。上書きが起きることがあるため、慣れるまでは-iが安心です。",
+        exercises: [
+          ["old.txtをnew.txtに名前変更してください。", ["mv old.txt new.txt"], "同じ場所なら名前変更です。"],
+          ["memo.txtをnotesフォルダへ移動してください。", ["mv memo.txt notes/"], "移動先がフォルダです。"],
+          ["draft.mdをREADME.mdに名前変更してください。", ["mv draft.md README.md"], "ファイル名を変えます。"],
+          ["data.csvをdata/rawフォルダへ移動してください。", ["mv data.csv data/raw/"], "フォルダの末尾に/を付けると読みやすいです。"],
+          ["上書き確認しながらold.txtをnew.txtに変更してください。", ["mv -i old.txt new.txt"], "-iで確認します。"],
+          ["表示しながらa.txtをarchive/a.txtへ移動してください。", ["mv -v a.txt archive/a.txt"], "-vで表示します。"],
+          ["src/main.jsをsrc/app.jsに名前変更してください。", ["mv src/main.js src/app.js"], "パス付きの名前変更です。"],
+          ["notesフォルダをdocsに名前変更してください。", ["mv notes docs"], "フォルダ名もmvで変えます。"],
+          ["todo.txtとdone.txtをarchiveフォルダへ移動してください。", ["mv todo.txt done.txt archive/"], "複数ファイルの移動先はフォルダです。"],
+          ["上書き確認しながらreport.mdをdocs/report.mdへ移動してください。", ["mv -i report.md docs/report.md"], "安全確認付きの移動です。"]
+        ]
+      },
+      {
+        id: "rm",
+        name: "rm",
+        label: "Remove",
+        title: "ファイルを削除する",
+        summary: "ファイルを削除します。ゴミ箱へ移動ではなく、基本的に戻せません。練習用フォルダだけで使います。",
+        options: [
+          ["-i", "削除前に確認します。最初はこれを強く推奨します。"],
+          ["-r", "フォルダを中身ごと削除します。危険度が上がるので慎重に使います。"],
+          ["-f", "確認やエラー表示を抑えて強制します。初心者練習では使わない方針です。"]
+        ],
+        sample: "rm -i memo.txt\nrm old.txt\nrm -ri old-folder",
+        tips: "rmは取り消ししにくい操作です。実行前にpwdとlsで場所と対象を確認します。",
+        exercises: [
+          ["確認しながらold.txtを削除してください。", ["rm -i old.txt"], "初心者は-iを付ける練習をします。"],
+          ["確認しながらmemo-backup.txtを削除してください。", ["rm -i memo-backup.txt"], "対象名をよく読みます。"],
+          ["temp.txtを削除してください。", ["rm temp.txt"], "練習用ファイルだけで使います。"],
+          ["確認しながらa.txtとb.txtを削除してください。", ["rm -i a.txt b.txt"], "複数ファイルも指定できます。"],
+          ["確認しながらold-folderを中身ごと削除してください。", ["rm -ri old-folder", "rm -ir old-folder"], "フォルダは-r、確認は-iです。"],
+          ["確認しながらtmpフォルダを中身ごと削除してください。", ["rm -ri tmp", "rm -ir tmp"], "慎重に入力します。"],
+          ["log.txtを削除してください。", ["rm log.txt"], "対象を間違えないこと。"],
+          ["確認しながらdraft.mdを削除してください。", ["rm -i draft.md"], "-i付きで安全に。"],
+          ["確認しながらcacheフォルダを中身ごと削除してください。", ["rm -ri cache", "rm -ir cache"], "rとiの組み合わせです。"],
+          ["危険な強制削除を避け、safe.txtを確認付きで削除してください。", ["rm -i safe.txt"], "-fではなく-iを選びます。"]
+        ]
+      },
+      {
+        id: "grep",
+        name: "grep",
+        label: "Global Regular Expression Print",
+        title: "文字列を検索する",
+        summary: "ファイルの中から指定した文字列を含む行を探します。ログ、設定、README、ソースコードの確認でよく使います。",
+        options: [
+          ["-n", "見つかった行番号を表示します。"],
+          ["-i", "大文字小文字を区別せず検索します。"],
+          ["-r", "フォルダの中を再帰的に検索します。"],
+          ["--include", "対象ファイルの種類を絞ります。例: --include=\"*.py\""]
+        ],
+        sample: "grep error app.log\ngrep -n TODO README.md\ngrep -ri password .",
+        tips: "grep 検索語 ファイル名 の順です。検索語にスペースがある場合は引用符で囲みます。",
+        exercises: [
+          ["app.logからerrorを検索してください。", ["grep error app.log"], "検索語、ファイル名の順です。"],
+          ["README.mdからTODOを検索してください。", ["grep TODO README.md"], "大文字も名前の一部です。"],
+          ["行番号付きでTODOをREADME.mdから検索してください。", ["grep -n TODO README.md"], "-nで行番号です。"],
+          ["大文字小文字を区別せずerrorをapp.logから検索してください。", ["grep -i error app.log"], "-iを使います。"],
+          ["行番号付きでerrorをapp.logから検索してください。", ["grep -n error app.log"], "ログ確認で便利です。"],
+          ["現在のフォルダ以下からTODOを再帰的に検索してください。", ["grep -r TODO ."], ". は現在のフォルダです。"],
+          ["現在のフォルダ以下からerrorを大文字小文字無視で再帰検索してください。", ["grep -ri error .", "grep -ir error ."], "-rと-iを組み合わせます。"],
+          ["notes.mdから「hello world」を検索してください。", ["grep \"hello world\" notes.md", "grep 'hello world' notes.md"], "スペースを含む検索語は引用符で囲みます。"],
+          ["行番号付きでconfigをsettings.jsonから検索してください。", ["grep -n config settings.json"], "設定の場所を確認します。"],
+          ["Pythonファイルだけを対象に、現在のフォルダ以下からimportを検索してください。", ["grep -r --include=\"*.py\" import .", "grep -r --include='*.py' import ."], "--includeで対象を絞ります。"]
+        ]
+      },
+      {
+        id: "head",
+        name: "head",
+        label: "First Lines",
+        title: "先頭だけを見る",
+        summary: "ファイルの先頭部分だけを表示します。CSVの列名、ログの最初、設定ファイルの冒頭を確認する時に使います。",
+        options: [
+          ["-n 数字", "表示する行数を指定します。例: head -n 20 app.log"],
+          ["-c 数字", "先頭から指定したバイト数だけ表示します。普段は行数指定の方がよく使います。"],
+          ["複数ファイル", "head a.txt b.txt のように複数ファイルの先頭を確認できます。"]
+        ],
+        sample: "head app.log\nhead -n 20 app.log\nhead -n 1 users.csv",
+        tips: "headは大きいファイルを全部流さず、最初だけ見るための安全な入口です。",
+        exercises: [
+          ["app.logの先頭を表示してください。", ["head app.log"], "オプションなしでは先頭10行です。"],
+          ["app.logの先頭20行を表示してください。", ["head -n 20 app.log"], "-nの後ろに行数を書きます。"],
+          ["users.csvの先頭1行を表示してください。", ["head -n 1 users.csv"], "CSVのヘッダー確認でよく使います。"],
+          ["README.mdの先頭5行を表示してください。", ["head -n 5 README.md"], "説明文の冒頭確認です。"],
+          ["access.logの先頭50行を表示してください。", ["head -n 50 access.log"], "ログの開始部分を見ます。"],
+          ["config.jsonの先頭10行を表示してください。", ["head config.json", "head -n 10 config.json"], "デフォルトは10行です。"],
+          ["data.csvの先頭3行を表示してください。", ["head -n 3 data.csv"], "サンプル確認に便利です。"],
+          ["a.txtとb.txtの先頭を表示してください。", ["head a.txt b.txt"], "複数ファイルも指定できます。"],
+          ["server.logの先頭100行を表示してください。", ["head -n 100 server.log"], "多めに見る時の指定です。"],
+          ["notes.mdの先頭から80バイトだけ表示してください。", ["head -c 80 notes.md"], "バイト数指定は-cです。"]
+        ]
+      },
+      {
+        id: "tail",
+        name: "tail",
+        label: "Last Lines",
+        title: "末尾だけを見る",
+        summary: "ファイルの最後の部分を表示します。ログは新しい情報が末尾に追記されることが多いため、開発作業でよく使います。",
+        options: [
+          ["-n 数字", "表示する末尾行数を指定します。例: tail -n 50 app.log"],
+          ["-f", "ファイルへの追記を待ち続けて表示します。動いているログを見る時に使います。"],
+          ["-F", "ログローテーションされても追いかけやすい形です。サーバーログで使うことがあります。"]
+        ],
+        sample: "tail app.log\ntail -n 50 app.log\ntail -f app.log",
+        tips: "tail -fを止める時はControl + Cです。練習ではログファイルだけを対象にします。",
+        exercises: [
+          ["app.logの末尾を表示してください。", ["tail app.log"], "オプションなしでは末尾10行です。"],
+          ["app.logの末尾20行を表示してください。", ["tail -n 20 app.log"], "-nで行数指定です。"],
+          ["server.logの末尾50行を表示してください。", ["tail -n 50 server.log"], "エラー直後の確認でよく使います。"],
+          ["access.logの末尾100行を表示してください。", ["tail -n 100 access.log"], "新しいアクセスを見る例です。"],
+          ["app.logを追いかけて表示してください。", ["tail -f app.log"], "-fで追跡表示です。"],
+          ["server.logを追いかけて表示してください。", ["tail -f server.log"], "止める時はControl + Cです。"],
+          ["README.mdの末尾5行を表示してください。", ["tail -n 5 README.md"], "テキスト末尾の確認です。"],
+          ["data.csvの末尾3行を表示してください。", ["tail -n 3 data.csv"], "データ末尾のサンプル確認です。"],
+          ["app.logをログローテーションに強めの形で追いかけてください。", ["tail -F app.log"], "-Fは大文字です。"],
+          ["error.logの末尾200行を表示してください。", ["tail -n 200 error.log"], "障害調査では多めに見ることがあります。"]
+        ]
+      },
+      {
+        id: "less",
+        name: "less",
+        label: "Pager",
+        title: "長いファイルをページで見る",
+        summary: "長いファイルをスクロールしながら読みます。画面を一気に流さず、検索しながらログやREADMEを確認できます。",
+        options: [
+          ["-N", "行番号を表示します。レビューや調査で便利です。"],
+          ["-S", "長い行を折り返さず、横スクロールで見ます。ログやCSVで役立ちます。"],
+          ["+G", "ファイルの末尾から開きます。新しいログを見る時に便利です。"]
+        ],
+        sample: "less app.log\nless -N README.md\nless +G app.log",
+        tips: "lessを終了するキーは q です。検索は /文字列、次の一致へ進む時は n を押します。",
+        exercises: [
+          ["app.logをlessで開いてください。", ["less app.log"], "長いファイルを見る基本です。"],
+          ["README.mdをlessで開いてください。", ["less README.md"], "説明書をTerminalで読む例です。"],
+          ["行番号付きでapp.logを開いてください。", ["less -N app.log"], "-Nで行番号です。"],
+          ["長い行を折り返さずにaccess.logを開いてください。", ["less -S access.log"], "-Sで折り返しを止めます。"],
+          ["行番号付きでREADME.mdを開いてください。", ["less -N README.md"], "レビュー時に便利です。"],
+          ["app.logを末尾から開いてください。", ["less +G app.log"], "+Gで末尾から開きます。"],
+          ["長い行を折り返さず、行番号付きでaccess.logを開いてください。", ["less -NS access.log", "less -SN access.log", "less -N -S access.log", "less -S -N access.log"], "NとSを組み合わせます。"],
+          ["config.jsonをlessで開いてください。", ["less config.json"], "設定ファイル確認の例です。"],
+          ["server.logを末尾から開いてください。", ["less +G server.log"], "新しいログに近い場所から読みます。"],
+          ["data.csvを折り返さずにlessで開いてください。", ["less -S data.csv"], "CSVは横に長いことがあります。"]
+        ]
+      },
+      {
+        id: "wc",
+        name: "wc",
+        label: "Word Count",
+        title: "行数や文字数を数える",
+        summary: "ファイルの行数、単語数、バイト数などを数えます。ログ件数、CSVの行数、出力結果の件数確認に使います。",
+        options: [
+          ["-l", "行数だけを数えます。最もよく使います。"],
+          ["-w", "単語数を数えます。英文やログの簡易確認に使います。"],
+          ["-c", "バイト数を数えます。ファイルサイズ確認に使います。"],
+          ["-m", "文字数を数えます。日本語を含む時はバイト数と違う場合があります。"]
+        ],
+        sample: "wc app.log\nwc -l app.log\nwc -l users.csv",
+        tips: "件数確認では wc -l が定番です。grepの結果と組み合わせると該当件数を数えられます。",
+        exercises: [
+          ["app.logの行数を数えてください。", ["wc -l app.log"], "行数は-lです。"],
+          ["users.csvの行数を数えてください。", ["wc -l users.csv"], "CSVの件数確認で使います。"],
+          ["README.mdの単語数を数えてください。", ["wc -w README.md"], "単語数は-wです。"],
+          ["data.csvのバイト数を数えてください。", ["wc -c data.csv"], "バイト数は-cです。"],
+          ["notes.mdの文字数を数えてください。", ["wc -m notes.md"], "文字数は-mです。"],
+          ["app.logの行数、単語数、バイト数をまとめて表示してください。", ["wc app.log"], "オプションなしで複数の数値が出ます。"],
+          ["a.txtとb.txtの行数を数えてください。", ["wc -l a.txt b.txt"], "複数ファイルも指定できます。"],
+          ["error.logの行数を数えてください。", ["wc -l error.log"], "ログ件数の確認です。"],
+          ["settings.jsonのバイト数を数えてください。", ["wc -c settings.json"], "サイズ感の確認です。"],
+          ["report.txtの単語数を数えてください。", ["wc -w report.txt"], "文章量の確認です。"]
+        ]
+      },
+      {
+        id: "sort",
+        name: "sort",
+        label: "Sort Lines",
+        title: "行を並べ替える",
+        summary: "テキストの行を並べ替えます。重複削除の前処理、ログの整理、一覧の比較でよく使います。",
+        options: [
+          ["-r", "逆順に並べます。"],
+          ["-n", "数字として並べます。10が2より前に来る問題を避けます。"],
+          ["-u", "並べ替えながら重複を削除します。"],
+          ["-o ファイル", "結果を指定ファイルへ保存します。"]
+        ],
+        sample: "sort names.txt\nsort -n scores.txt\nsort -u users.txt",
+        tips: "uniqは隣り合う重複だけを処理するため、sortしてからuniqする流れがよく使われます。",
+        exercises: [
+          ["names.txtを並べ替えてください。", ["sort names.txt"], "基本はオプションなしです。"],
+          ["names.txtを逆順に並べ替えてください。", ["sort -r names.txt"], "-rでreverseです。"],
+          ["scores.txtを数字として並べ替えてください。", ["sort -n scores.txt"], "-nでnumericです。"],
+          ["scores.txtを数字として逆順に並べ替えてください。", ["sort -nr scores.txt", "sort -rn scores.txt", "sort -n -r scores.txt", "sort -r -n scores.txt"], "-nと-rを組み合わせます。"],
+          ["users.txtを重複なしで並べ替えてください。", ["sort -u users.txt"], "-uでuniqueです。"],
+          ["access.logを並べ替えてください。", ["sort access.log"], "ログ行を文字順に並べます。"],
+          ["numbers.txtを数字として並べ替えてください。", ["sort -n numbers.txt"], "数字の大小で並べます。"],
+          ["names.txtを並べ替え、sorted-names.txtへ保存してください。", ["sort names.txt -o sorted-names.txt", "sort -o sorted-names.txt names.txt"], "-oで保存先を指定します。"],
+          ["data.txtを重複なしで逆順に並べ替えてください。", ["sort -ur data.txt", "sort -ru data.txt", "sort -u -r data.txt", "sort -r -u data.txt"], "-uと-rを組み合わせます。"],
+          ["versions.txtを数字として並べ替えてください。", ["sort -n versions.txt"], "バージョン番号の練習例です。"]
+        ]
+      },
+      {
+        id: "uniq",
+        name: "uniq",
+        label: "Unique Lines",
+        title: "連続する重複行を扱う",
+        summary: "隣り合う重複行を削除したり数えたりします。通常はsortした結果に対して使います。",
+        options: [
+          ["-c", "重複回数を数えて表示します。ログ集計の入口になります。"],
+          ["-d", "重複している行だけを表示します。"],
+          ["-u", "重複していない行だけを表示します。"],
+          ["-i", "大文字小文字を区別せず比較します。"]
+        ],
+        sample: "uniq names.txt\nsort names.txt | uniq\nsort users.txt | uniq -c",
+        tips: "uniq単体は隣同士の重複だけを見ます。離れた重複もまとめたい時は sort | uniq が基本です。",
+        exercises: [
+          ["names.txtの連続する重複をまとめてください。", ["uniq names.txt"], "隣り合う重複だけが対象です。"],
+          ["names.txtを並べ替えてから重複をまとめてください。", ["sort names.txt | uniq"], "sortとuniqの定番です。"],
+          ["users.txtを並べ替えてから件数付きで重複を数えてください。", ["sort users.txt | uniq -c"], "-cで件数です。"],
+          ["names.txtから重複している行だけを表示してください。", ["uniq -d names.txt"], "-dでduplicateです。"],
+          ["names.txtから重複していない行だけを表示してください。", ["uniq -u names.txt"], "-uでunique onlyです。"],
+          ["大文字小文字を無視してnames.txtの連続重複をまとめてください。", ["uniq -i names.txt"], "-iでignore caseです。"],
+          ["access.logを並べ替えてから件数付きで重複を数えてください。", ["sort access.log | uniq -c"], "ログの同一行集計です。"],
+          ["emails.txtを並べ替えてから重複をまとめてください。", ["sort emails.txt | uniq"], "メール一覧の重複削除です。"],
+          ["errors.txtを並べ替え、重複している行だけ表示してください。", ["sort errors.txt | uniq -d"], "重複エラーを探します。"],
+          ["items.txtを並べ替え、重複していない行だけ表示してください。", ["sort items.txt | uniq -u"], "一度しか出ない行を探します。"]
+        ]
+      },
+      {
+        id: "cut",
+        name: "cut",
+        label: "Cut Columns",
+        title: "列や文字範囲を抜き出す",
+        summary: "行の一部だけを抜き出します。CSVやタブ区切りの特定列、ログの先頭部分を取り出す時に使います。",
+        options: [
+          ["-d 区切り文字", "列を分ける区切り文字を指定します。CSVなら -d ',' です。"],
+          ["-f 番号", "抜き出すフィールド番号を指定します。1始まりです。"],
+          ["-c 範囲", "文字位置で抜き出します。例: cut -c 1-10"],
+          ["--complement", "指定した列以外を表示します。慣れてから使います。"]
+        ],
+        sample: "cut -d ',' -f 1 users.csv\ncut -d ',' -f 1,3 users.csv\ncut -c 1-10 app.log",
+        tips: "cutは列を抜く道具です。CSVではカンマ、TSVではタブが区切り文字になります。",
+        exercises: [
+          ["users.csvから1列目を抜き出してください。", ["cut -d ',' -f 1 users.csv", "cut -d \",\" -f 1 users.csv"], "CSVの区切り文字はカンマです。"],
+          ["users.csvから2列目を抜き出してください。", ["cut -d ',' -f 2 users.csv", "cut -d \",\" -f 2 users.csv"], "-fで列番号です。"],
+          ["users.csvから1列目と3列目を抜き出してください。", ["cut -d ',' -f 1,3 users.csv", "cut -d \",\" -f 1,3 users.csv"], "複数列はカンマで指定します。"],
+          ["access.logの先頭10文字を抜き出してください。", ["cut -c 1-10 access.log"], "文字範囲は-cです。"],
+          ["app.logの1文字目から20文字目までを抜き出してください。", ["cut -c 1-20 app.log"], "固定幅ログの確認です。"],
+          ["users.tsvから1列目を抜き出してください。", ["cut -f 1 users.tsv"], "タブ区切りは-dなしで扱えます。"],
+          ["users.tsvから2列目と4列目を抜き出してください。", ["cut -f 2,4 users.tsv"], "タブ区切りの複数列です。"],
+          ["paths.txtから1文字目から5文字目までを抜き出してください。", ["cut -c 1-5 paths.txt"], "文字位置で切ります。"],
+          ["users.csvから2列目以外を表示してください。", ["cut -d ',' -f 2 --complement users.csv", "cut -d \",\" -f 2 --complement users.csv"], "--complementで指定列以外です。"],
+          ["logs.csvから3列目を抜き出してください。", ["cut -d ',' -f 3 logs.csv", "cut -d \",\" -f 3 logs.csv"], "列番号は1から数えます。"]
+        ]
+      },
+      {
+        id: "find",
+        name: "find",
+        label: "Find Files",
+        title: "ファイルを探す",
+        summary: "指定した場所の下から、名前や種類などの条件に合うファイルを探します。プロジェクトが大きくなった時に効くコマンドです。",
+        options: [
+          ["-name パターン", "名前で探します。例: find . -name \"*.log\""],
+          ["-type f", "ファイルだけを探します。"],
+          ["-type d", "フォルダだけを探します。"],
+          ["-mtime 日数", "更新日で探します。例: -mtime -7 は7日以内です。"],
+          ["-size サイズ", "サイズで探します。例: +10M は10MBより大きいファイルです。"]
+        ],
+        sample: "find . -name \"*.log\"\nfind . -type f -name \"*.py\"\nfind . -type d -name \"node_modules\"",
+        tips: "最初の . は現在のフォルダ以下を意味します。練習では必ず ~/practice の中で使います。",
+        exercises: [
+          ["現在のフォルダ以下から.logファイルを探してください。", ["find . -name \"*.log\"", "find . -name '*.log'"], "ファイル名のパターンは引用符で囲みます。"],
+          ["現在のフォルダ以下から.pyファイルを探してください。", ["find . -name \"*.py\"", "find . -name '*.py'"], "Pythonファイルを探す例です。"],
+          ["現在のフォルダ以下からREADME.mdを探してください。", ["find . -name README.md", "find . -name \"README.md\""], "特定ファイル名で探します。"],
+          ["現在のフォルダ以下からファイルだけを表示してください。", ["find . -type f"], "-type fでファイルです。"],
+          ["現在のフォルダ以下からフォルダだけを表示してください。", ["find . -type d"], "-type dでディレクトリです。"],
+          ["現在のフォルダ以下からファイルだけに絞って.txtを探してください。", ["find . -type f -name \"*.txt\"", "find . -type f -name '*.txt'"], "種類と名前を組み合わせます。"],
+          ["現在のフォルダ以下からlogsというフォルダを探してください。", ["find . -type d -name logs", "find . -type d -name \"logs\""], "フォルダ名で探します。"],
+          ["現在のフォルダ以下から7日以内に更新されたファイルを探してください。", ["find . -type f -mtime -7"], "-mtime -7で7日以内です。"],
+          ["現在のフォルダ以下から10MBより大きいファイルを探してください。", ["find . -type f -size +10M"], "-size +10Mを使います。"],
+          ["現在のフォルダ以下から.jsonファイルを探してください。", ["find . -name \"*.json\"", "find . -name '*.json'"], "設定ファイル探しでよく使います。"]
+        ]
+      },
+      {
+        id: "curl",
+        name: "curl",
+        label: "Client URL",
+        title: "URLへリクエストする",
+        summary: "URLにアクセスして応答を表示します。APIの疎通確認、ローカル開発サーバーの確認、ファイルの取得で使います。",
+        options: [
+          ["-I", "ヘッダーだけを取得します。ステータスコード確認に便利です。"],
+          ["-L", "リダイレクトをたどります。"],
+          ["-o ファイル", "応答を指定したファイル名で保存します。"],
+          ["-O", "URL末尾のファイル名で保存します。"],
+          ["-X メソッド", "HTTPメソッドを指定します。例: -X POST"],
+          ["-H ヘッダー", "HTTPヘッダーを追加します。例: -H \"Content-Type: application/json\""]
+        ],
+        sample: "curl https://example.com\ncurl -I https://example.com\ncurl http://localhost:8000/health",
+        tips: "本番APIや認証情報つきURLを試す時は注意します。練習ではexample.comやlocalhostを使います。",
+        exercises: [
+          ["example.comへリクエストしてください。", ["curl https://example.com"], "基本形です。"],
+          ["example.comのヘッダーだけを取得してください。", ["curl -I https://example.com"], "-Iは大文字のiです。"],
+          ["リダイレクトをたどってexample.comへリクエストしてください。", ["curl -L https://example.com"], "-Lで追跡します。"],
+          ["localhost:8000のhealthエンドポイントを確認してください。", ["curl http://localhost:8000/health"], "ローカル開発サーバー確認の例です。"],
+          ["example.comの応答をexample.htmlに保存してください。", ["curl -o example.html https://example.com"], "-oの後ろに保存名です。"],
+          ["URL末尾のファイル名で保存してください。", ["curl -O https://example.com/index.html"], "-Oは大文字です。"],
+          ["GETメソッドを明示してlocalhost:8000/apiへリクエストしてください。", ["curl -X GET http://localhost:8000/api"], "-Xでメソッド指定です。"],
+          ["JSONとしてlocalhost:8000/apiへリクエストしてください。", ["curl -H \"Accept: application/json\" http://localhost:8000/api", "curl -H 'Accept: application/json' http://localhost:8000/api"], "ヘッダーは-Hで追加します。"],
+          ["POSTメソッドでlocalhost:8000/api/itemsへリクエストしてください。", ["curl -X POST http://localhost:8000/api/items"], "POSTの練習です。"],
+          ["example.comのヘッダーを、リダイレクトをたどって取得してください。", ["curl -IL https://example.com", "curl -LI https://example.com", "curl -I -L https://example.com", "curl -L -I https://example.com"], "-Iと-Lを組み合わせます。"]
+        ]
+      },
+      {
+        id: "redirect",
+        name: ">",
+        label: "Redirection",
+        title: "出力をファイルへ保存する",
+        summary: "画面に表示される結果をファイルへ書き込みます。調査結果を残す、ログから抜き出した内容を保存する時に使います。",
+        options: [
+          [">", "出力をファイルへ保存します。既存ファイルがある場合は上書きします。"],
+          [">>", "出力をファイルの末尾へ追記します。既存内容を残したい時に使います。"],
+          ["2>", "エラー出力だけをファイルへ保存します。"],
+          ["2>&1", "通常出力とエラー出力をまとめます。少し慣れてから使います。"]
+        ],
+        sample: "ls > files.txt\ngrep error app.log > errors.txt\ncat memo.txt >> notes.txt",
+        tips: "> は上書き、>> は追記です。大事なファイル名を指定していないか、Enter前に必ず確認します。",
+        exercises: [
+          ["lsの結果をfiles.txtへ保存してください。", ["ls > files.txt"], ">で保存します。"],
+          ["app.logからerrorを検索した結果をerrors.txtへ保存してください。", ["grep error app.log > errors.txt"], "grepの結果を保存します。"],
+          ["app.logの先頭20行をfirst-lines.txtへ保存してください。", ["head -n 20 app.log > first-lines.txt"], "headとリダイレクトの組み合わせです。"],
+          ["app.logの末尾50行をlatest.logへ保存してください。", ["tail -n 50 app.log > latest.log"], "tailの結果を保存します。"],
+          ["users.csvの1列目をuser-names.txtへ保存してください。", ["cut -d ',' -f 1 users.csv > user-names.txt", "cut -d \",\" -f 1 users.csv > user-names.txt"], "cutの結果を保存します。"],
+          ["memo.txtの内容をnotes.txtへ追記してください。", ["cat memo.txt >> notes.txt"], ">>は追記です。"],
+          ["README.mdの先頭5行をsummary.txtへ追記してください。", ["head -n 5 README.md >> summary.txt"], "既存内容を残して追加します。"],
+          ["app.logの行数をcount.txtへ保存してください。", ["wc -l app.log > count.txt"], "件数をファイルへ残します。"],
+          ["findで見つけた.logファイル一覧をlog-files.txtへ保存してください。", ["find . -name \"*.log\" > log-files.txt", "find . -name '*.log' > log-files.txt"], "検索結果を保存します。"],
+          ["存在しないファイルをcatした時のエラーをerror.txtへ保存してください。", ["cat missing.txt 2> error.txt"], "エラー出力は2>です。"]
+        ]
+      },
+      {
+        id: "pipe",
+        name: "|",
+        label: "Pipe",
+        title: "コマンド同士をつなぐ",
+        summary: "左のコマンドの出力を、右のコマンドの入力として渡します。UNIXコマンドらしい組み合わせの考え方です。",
+        options: [
+          ["|", "左の結果を右へ渡します。例: cat app.log | grep error"],
+          ["grep ... | wc -l", "検索結果の件数を数えます。ログ調査でよく使います。"],
+          ["sort | uniq", "並べ替えてから重複をまとめます。"],
+          ["cut | sort | uniq -c", "列を抜き、並べ替え、件数を数えます。"]
+        ],
+        sample: "cat app.log | grep error\ngrep error app.log | wc -l\ncut -d ',' -f 1 users.csv | sort | uniq",
+        tips: "パイプは一気に複雑にできます。最初は2つのコマンドだけをつなぎ、読める形を保ちます。",
+        exercises: [
+          ["app.logを表示し、その中からerrorを検索してください。", ["cat app.log | grep error"], "左のcat結果を右のgrepへ渡します。"],
+          ["app.logからerrorを検索し、その件数を数えてください。", ["grep error app.log | wc -l"], "検索結果をwc -lへ渡します。"],
+          ["users.csvの1列目を抜き出し、並べ替えてください。", ["cut -d ',' -f 1 users.csv | sort", "cut -d \",\" -f 1 users.csv | sort"], "cutの結果をsortへ渡します。"],
+          ["users.csvの1列目を抜き出し、並べ替えて重複をまとめてください。", ["cut -d ',' -f 1 users.csv | sort | uniq", "cut -d \",\" -f 1 users.csv | sort | uniq"], "3つのコマンドをつなぎます。"],
+          ["users.csvの1列目を抜き出し、並べ替えて件数付きで重複を数えてください。", ["cut -d ',' -f 1 users.csv | sort | uniq -c", "cut -d \",\" -f 1 users.csv | sort | uniq -c"], "uniq -cで件数です。"],
+          ["app.logの末尾100行からERRORを検索してください。", ["tail -n 100 app.log | grep ERROR"], "最近のログだけを検索します。"],
+          ["app.logからERRORを検索し、先頭5行だけ表示してください。", ["grep ERROR app.log | head -n 5"], "検索結果をheadへ渡します。"],
+          ["findで見つけた.logファイル一覧を並べ替えてください。", ["find . -name \"*.log\" | sort", "find . -name '*.log' | sort"], "find結果をsortへ渡します。"],
+          ["names.txtを並べ替え、重複をまとめ、先頭10行を表示してください。", ["sort names.txt | uniq | head", "sort names.txt | uniq | head -n 10"], "headはデフォルト10行です。"],
+          ["curlでlocalhost:8000/healthを呼び、その中からokを検索してください。", ["curl http://localhost:8000/health | grep ok"], "API応答をgrepへ渡します。"]
+        ]
+      }
+    ];
+
+    const root = document.querySelector("#practice-root");
+    const solved = new Set();
+    const total = commands.reduce((sum, command) => sum + command.exercises.length, 0);
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function commandProgress(command) {
+      return command.exercises.filter((_, index) => solved.has(`${command.id}-${index}`)).length;
+    }
+
+    function updateProgress() {
+      const done = solved.size;
+      const percent = Math.round((done / total) * 100);
+      document.querySelectorAll("[data-total-progress]").forEach((element) => {
+        element.textContent = `${done} / ${total}問 正解`;
+      });
+      document.querySelectorAll("[data-total-meter]").forEach((element) => {
+        element.style.width = `${percent}%`;
+      });
+      commands.forEach((command) => {
+        const count = commandProgress(command);
+        document.querySelectorAll(`[data-command-progress="${command.id}"]`).forEach((element) => {
+          element.textContent = `${count} / ${command.exercises.length}`;
+        });
+      });
+    }
+
+    function makeOptionsTable(command) {
+      return `
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>よく使う形</th><th>意味</th></tr>
+            </thead>
+            <tbody>
+              ${command.options.map(([option, meaning]) => `
+                <tr><td><code>${escapeHtml(option)}</code></td><td>${escapeHtml(meaning)}</td></tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function makeExercises(command) {
+      return command.exercises.map(([question, answers, hint], index) => {
+        const answerText = answers.length === 1 ? answers[0] : answers.slice(0, 2).join(" または ");
+        return `
+          <article class="exercise-card" data-exercise="${command.id}-${index}">
+            <div class="exercise-head">
+              <span class="exercise-no">${command.name} practice ${String(index + 1).padStart(2, "0")}</span>
+              <span class="mini">例: <code>${escapeHtml(answerText)}</code></span>
+            </div>
+            <p>${escapeHtml(question)}</p>
+            <div class="input-row">
+              <input class="answer-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="${escapeHtml(command.name)}の練習${index + 1}" data-answers="${escapeHtml(JSON.stringify(answers))}" placeholder="$ ">
+              <button class="check-button" type="button">確認</button>
+            </div>
+            <p class="result" aria-live="polite"></p>
+            <p class="hint">ヒント: ${escapeHtml(hint)}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      root.innerHTML = commands.map((command, commandIndex) => `
+        <section id="cmd-${command.id}">
+          <div class="page">
+            <div class="section-head">
+              <div>
+                <span class="section-label">${escapeHtml(command.label)}</span>
+                <h2><code>${escapeHtml(command.name)}</code> ${escapeHtml(command.title)}</h2>
+              </div>
+              <p class="lead">${escapeHtml(command.summary)}</p>
+            </div>
+
+            <div class="grid two">
+              <article class="card">
+                <span class="tag">What it does</span>
+                <h3>何をするためのコマンドか</h3>
+                <p>${escapeHtml(command.summary)} ${escapeHtml(command.tips)}</p>
+              </article>
+              <div class="command-block">
+                <div class="command-title"><span>入力例</span><span>${escapeHtml(command.name)}</span></div>
+                <pre><code>${escapeHtml(command.sample)}</code></pre>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              ${makeOptionsTable(command)}
+            </div>
+
+            <div class="practice-layout" style="margin-top:18px;">
+              <div class="trainer">
+                <div class="trainer-top">
+                  <div class="trainer-title">
+                    <code>${escapeHtml(command.name)}</code>
+                    <span>${command.exercises.length}回入力する</span>
+                  </div>
+                  <span class="mini">このコマンド: <strong data-command-progress="${command.id}">0 / ${command.exercises.length}</strong></span>
+                </div>
+                <div class="trainer-body">
+                  ${makeExercises(command)}
+                </div>
+              </div>
+
+              <aside class="progress-panel" aria-label="練習進捗">
+                <h3>進捗</h3>
+                <div class="meter" aria-hidden="true"><span data-total-meter></span></div>
+                <p class="progress-text" data-total-progress>0 / ${total}問 正解</p>
+                <p class="mini">正解したら、実際のTerminalでも練習用フォルダの中で試します。</p>
+                <div class="command-list">
+                  ${commands.map((item, index) => `
+                    <a href="#cmd-${item.id}"><code>${escapeHtml(item.name)}</code><span data-command-progress="${item.id}">0 / ${item.exercises.length}</span></a>
+                  `).join("")}
+                </div>
+                <div class="hero-actions" style="margin-top:16px;">
+                  ${commandIndex > 0 ? `<a class="button ghost" href="#cmd-${commands[commandIndex - 1].id}">前へ</a>` : `<a class="button ghost" href="#start">始め方</a>`}
+                  ${commandIndex < commands.length - 1 ? `<a class="button" href="#cmd-${commands[commandIndex + 1].id}">次へ</a>` : `<a class="button" href="#finish">次へ</a>`}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `).join("");
+
+      document.querySelectorAll(".exercise-card").forEach((card) => {
+        const input = card.querySelector(".answer-input");
+        const button = card.querySelector(".check-button");
+        const result = card.querySelector(".result");
+        const key = card.dataset.exercise;
+
+        function check() {
+          const answers = JSON.parse(input.dataset.answers).map(normalize);
+          const value = normalize(input.value);
+          if (answers.includes(value)) {
+            solved.add(key);
+            card.style.borderColor = "rgba(34, 99, 81, .45)";
+            result.textContent = "OKです。次の問題へ進みましょう。";
+            result.className = "result ok";
+          } else {
+            result.textContent = "もう一度。スペース、ハイフン、ファイル名を確認してください。";
+            result.className = "result ng";
+          }
+          updateProgress();
+        }
+
+        button.addEventListener("click", check);
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            check();
+          }
+        });
+      });
+
+      updateProgress();
+    }
+
+    render();
+  </script>
+</body>
+</html>

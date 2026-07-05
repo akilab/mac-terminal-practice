@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Grep Practice</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, input { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.4vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover, .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card, .note, .command-block, .trainer, .progress-panel, .option-table {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card { padding: 22px; }
+    .card h3 { margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong { color: var(--mint-dark); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--terminal);
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: .88rem;
+      line-height: 1.65;
+    }
+
+    .option-table {
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .practice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .trainer { overflow: hidden; }
+
+    .trainer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(241, 239, 232, .72);
+    }
+
+    .trainer-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      font-weight: 900;
+    }
+
+    .trainer-title code {
+      color: var(--rose-dark);
+      font-size: 1.06rem;
+    }
+
+    .trainer-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .exercise-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .exercise-no {
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .exercise-card p {
+      margin: 0;
+      color: #424650;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: .92rem;
+    }
+
+    .answer-input:focus {
+      border-color: var(--mint-dark);
+      outline: 3px solid rgba(207, 232, 220, .9);
+    }
+
+    .check-button {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button:focus-visible, .button:focus-visible {
+      outline: 3px solid rgba(201, 217, 238, .95);
+      outline-offset: 2px;
+    }
+
+    .result {
+      min-height: 1.6em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result.ok { color: var(--mint-dark); font-weight: 900; }
+    .result.ng { color: var(--rose-dark); font-weight: 900; }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .progress-panel {
+      position: sticky;
+      top: 72px;
+      padding: 18px;
+    }
+
+    .meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6e2d9;
+    }
+
+    .meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint-dark), var(--blue-dark));
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .lesson-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .lesson-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .lesson-list span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .sources {
+      padding: 34px 0 56px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .practice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .progress-panel { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .input-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+      .meter span { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Grep Practice</p>
+      <h1>grepで、探せる人になる。</h1>
+      <p class="hero-text">
+        使用頻度がとても高い <code>grep</code> だけを集中的に練習するページです。
+        単一ファイル検索、複数ファイル検索、再帰検索、よく使うオプション、そしてgrepで使う最小限の正規表現を学びます。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#setup">準備する</a>
+        <a class="button secondary" href="#options">オプションを見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="grep練習のTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> grep " 404 " apache_logs<br>
+          83.149.9.216 - - [17/May/2015:10:05:32 +0000] "GET /missing.png HTTP/1.1" 404 1024 ...<br><br>
+          <span class="prompt">MacBook-Air %</span> grep -n -i error grep-lab/*.log<br>
+          grep-lab/app.log:3:ERROR database timeout<br>
+          grep-lab/api.log:5:error invalid token<br><br>
+          <span class="prompt">MacBook-Air %</span> grep -E " 40[0-9] " apache_logs | head<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#setup">準備</a>
+      <a href="#options">基本オプション</a>
+      <a href="#regex">正規表現</a>
+      <a href="#practice-root">演習</a>
+      <a href="#finish">仕上げ</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Setup</span>
+            <h2>検索用の材料を準備する</h2>
+          </div>
+          <p class="lead">
+            Apacheログに加えて、複数ファイル検索用の小さなログ群を作ります。
+            前回の <code>apache_logs</code> がある人は、そのまま使えます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Apacheログを用意する</span><span>未取得の場合</span></div>
+          <pre><code>mkdir -p ~/practice/grep-practice
+cd ~/practice/grep-practice
+curl -L -o apache_logs "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs"</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>複数ファイル検索用の小さなログを作る</span><span>Terminalで実行</span></div>
+          <pre><code>mkdir -p grep-lab
+cat &gt; grep-lab/app.log &lt;&lt;'LOG'
+INFO application started
+WARN disk usage high
+ERROR database timeout
+INFO application stopped
+LOG
+cat &gt; grep-lab/api.log &lt;&lt;'LOG'
+GET /api/users 200
+POST /api/login 401
+GET /api/items 200
+error invalid token
+LOG
+cat &gt; grep-lab/security.log &lt;&lt;'LOG'
+ALLOW 203.0.113.10 /api/users
+DENY 198.51.100.23 /admin
+DENY 192.0.2.44 /wp-login.php
+ALLOW 203.0.113.10 /api/items
+LOG</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>この教材の前提:</strong>
+          作業場所は <code>~/practice/grep-practice</code>、Apacheログのファイル名は <code>apache_logs</code>、
+          複数ファイル検索用ディレクトリは <code>grep-lab/</code> です。
+        </div>
+      </div>
+    </section>
+
+    <section id="options">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Options</span>
+            <h2>grepの基本オプション</h2>
+          </div>
+          <p class="lead">
+            最初から全部覚える必要はありません。まずは、検索結果を読みやすくし、範囲を広げ、件数を数えるオプションを押さえます。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>オプション</th><th>意味</th><th>例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>-n</code></td><td>行番号を表示する</td><td><code>grep -n ERROR grep-lab/app.log</code></td></tr>
+              <tr><td><code>-i</code></td><td>大文字小文字を区別しない</td><td><code>grep -i error grep-lab/*.log</code></td></tr>
+              <tr><td><code>-v</code></td><td>一致しない行を表示する</td><td><code>grep -v INFO grep-lab/app.log</code></td></tr>
+              <tr><td><code>-c</code></td><td>一致した行数を数える</td><td><code>grep -c DENY grep-lab/security.log</code></td></tr>
+              <tr><td><code>-l</code></td><td>一致したファイル名だけ表示する</td><td><code>grep -l error grep-lab/*.log</code></td></tr>
+              <tr><td><code>-r</code></td><td>ディレクトリ配下を再帰検索する</td><td><code>grep -r DENY grep-lab</code></td></tr>
+              <tr><td><code>-E</code></td><td>拡張正規表現を使い、<code>|</code> や <code>+</code> や <code>()</code> を読みやすく書く</td><td><code>grep -E "ERROR|WARN" grep-lab/app.log</code></td></tr>
+              <tr><td><code>-o</code></td><td>一致した部分だけ表示する</td><td><code>grep -o -E " 40[0-9] " apache_logs</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="regex">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Regex For Grep</span>
+            <h2>grepで使う小さな正規表現</h2>
+          </div>
+          <p class="lead">
+            ここは正規表現そのものを深く学ぶ場ではありません。
+            grepでログを探す時によく使う、少数の形だけを扱います。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Range</span>
+            <h3><code>[0-9]</code></h3>
+            <p>数字1文字に一致します。例: <code>40[0-9]</code> は400から409のような文字列を探します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Beginning / End</span>
+            <h3><code>^</code> と <code>$</code></h3>
+            <p><code>^ERROR</code> はERRORで始まる行、<code>log$</code> はlogで終わる行に一致します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Choice</span>
+            <h3><code>-E</code> と <code>|</code></h3>
+            <p><code>grep -E "ERROR|WARN"</code> のように、どちらかに一致する行を探せます。</p>
+          </article>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>引用符を使う:</strong>
+          正規表現には <code>|</code>、<code>*</code>、<code>.</code> などシェルにも意味がある文字が出ます。
+          grepのパターンは、基本的に <code>"..."</code> または <code>'...'</code> で囲みます。
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong><code>-E</code> がなくても使えるもの:</strong>
+          通常の <code>grep</code> でも、<code>[0-9]</code>、<code>^</code>、<code>$</code>、<code>.</code>、<code>*</code> などは使えます。
+          <code>-E</code> は正規表現を初めて有効にするオプションではなく、<code>|</code>、<code>+</code>、<code>?</code>、<code>()</code> などをバックスラッシュなしで読みやすく書くためのオプションです。
+        </div>
+      </div>
+    </section>
+
+    <div id="practice-root"></div>
+
+    <section id="finish">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Final Drill</span>
+            <h2>grepを調査の入口にする</h2>
+          </div>
+          <p class="lead">
+            grepは、ログ分析やコード調査の最初の一手です。
+            見つける、数える、除外する、ファイルを特定する、そしてパイプにつなぐ流れを体に入れます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>仕上げの例</span><span>grepから分析へ</span></div>
+          <pre><code>grep " 404 " apache_logs | wc -l
+grep " 404 " apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head
+grep -r -i error grep-lab
+grep -l -i error grep-lab/*.log</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="page sources">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.5rem);">参照元</h2>
+      <p class="mini">
+        ApacheログのサンプルはElastic examplesリポジトリのApache logsを使います。
+      </p>
+      <p class="mini">
+        <a href="https://github.com/elastic/examples/tree/master/Common%20Data%20Formats/apache_logs">Elastic examples - Apache logs</a><br>
+        <a href="https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs">Raw apache_logs</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const lessons = [
+      {
+        id: "single",
+        label: "Single File",
+        title: "単一ファイルから検索する",
+        summary: "まず1つのファイルを対象にして、grepの基本形を覚えます。",
+        sample: "grep ERROR grep-lab/app.log\ngrep \" 404 \" apache_logs\ngrep -n WARN grep-lab/app.log",
+        exercises: [
+          ["app.logからERRORを検索してください。", ["grep ERROR grep-lab/app.log"], "grep 検索語 ファイル名 の順です。"],
+          ["app.logからWARNを行番号付きで検索してください。", ["grep -n WARN grep-lab/app.log"], "-nで行番号です。"],
+          ["apache_logsから404の行を検索してください。", ["grep \" 404 \" apache_logs", "grep ' 404 ' apache_logs"], "前後に空白を入れるとステータスコードを狙いやすいです。"],
+          ["security.logからDENYを検索してください。", ["grep DENY grep-lab/security.log"], "拒否されたアクセスを探します。"],
+          ["api.logからloginを検索してください。", ["grep login grep-lab/api.log"], "パスや単語を探す基本です。"]
+        ]
+      },
+      {
+        id: "options",
+        label: "Options",
+        title: "結果を読みやすくする",
+        summary: "行番号、大文字小文字無視、除外、件数だけ表示など、よく使うオプションを練習します。",
+        sample: "grep -i error grep-lab/api.log\ngrep -v INFO grep-lab/app.log\ngrep -c DENY grep-lab/security.log",
+        exercises: [
+          ["api.logからerrorを大文字小文字を無視して検索してください。", ["grep -i error grep-lab/api.log"], "-iでERRORとerrorを同じように扱えます。"],
+          ["app.logからINFOではない行を表示してください。", ["grep -v INFO grep-lab/app.log"], "-vは一致しない行です。"],
+          ["security.logのDENYの件数を数えてください。", ["grep -c DENY grep-lab/security.log"], "-cで件数です。"],
+          ["api.logからapiを行番号付き・大文字小文字無視で検索してください。", ["grep -ni api grep-lab/api.log", "grep -in api grep-lab/api.log", "grep -n -i api grep-lab/api.log", "grep -i -n api grep-lab/api.log"], "-nと-iを組み合わせます。"],
+          ["apache_logsから404の件数を数えてください。", ["grep -c \" 404 \" apache_logs", "grep -c ' 404 ' apache_logs"], "ログ件数確認でよく使います。"]
+        ]
+      },
+      {
+        id: "multiple",
+        label: "Multiple Files",
+        title: "複数ファイルから検索する",
+        summary: "ワイルドカードを使って、複数ファイルをまとめて検索します。",
+        sample: "grep error grep-lab/*.log\ngrep -i error grep-lab/*.log\ngrep -l DENY grep-lab/*.log",
+        exercises: [
+          ["grep-lab内のlogファイルからerrorを検索してください。", ["grep error grep-lab/*.log"], "*.logで複数ファイルを対象にします。"],
+          ["grep-lab内のlogファイルからerrorを大文字小文字無視で検索してください。", ["grep -i error grep-lab/*.log"], "-iを付けます。"],
+          ["DENYを含むファイル名だけ表示してください。", ["grep -l DENY grep-lab/*.log"], "-lでファイル名だけです。"],
+          ["ALLOWを含むファイル名だけ表示してください。", ["grep -l ALLOW grep-lab/*.log"], "該当ファイルの確認に便利です。"],
+          ["grep-lab内のlogファイルからapiを行番号付きで検索してください。", ["grep -n api grep-lab/*.log"], "複数ファイルでも行番号を出せます。"]
+        ]
+      },
+      {
+        id: "recursive",
+        label: "Recursive",
+        title: "ディレクトリ配下を検索する",
+        summary: "ファイル名を1つずつ指定せず、ディレクトリ全体を検索します。",
+        sample: "grep -r DENY grep-lab\ngrep -r -i error grep-lab\ngrep -r --include=\"*.log\" error grep-lab",
+        exercises: [
+          ["grep-lab配下からDENYを再帰検索してください。", ["grep -r DENY grep-lab"], "-rでディレクトリ配下を検索します。"],
+          ["grep-lab配下からerrorを大文字小文字無視で再帰検索してください。", ["grep -ri error grep-lab", "grep -ir error grep-lab", "grep -r -i error grep-lab", "grep -i -r error grep-lab"], "-rと-iを組み合わせます。"],
+          ["grep-lab配下からlogファイルだけを対象にerrorを検索してください。", ["grep -r --include=\"*.log\" error grep-lab", "grep -r --include='*.log' error grep-lab"], "--includeで対象を絞ります。"],
+          ["grep-lab配下からadminを再帰検索してください。", ["grep -r admin grep-lab"], "パスや設定値の横断検索です。"],
+          ["grep-lab配下から200を再帰検索してください。", ["grep -r 200 grep-lab"], "数値も検索できます。"]
+        ]
+      },
+      {
+        id: "basic-regex",
+        label: "Basic Regex",
+        title: "grepで使う基本正規表現",
+        summary: "正規表現を深掘りせず、ログ検索でよく使う形だけを扱います。",
+        sample: "grep \"^ERROR\" grep-lab/app.log\ngrep \"php$\" grep-lab/security.log\ngrep \"40[0-9]\" apache_logs",
+        exercises: [
+          ["app.logからERRORで始まる行を検索してください。", ["grep \"^ERROR\" grep-lab/app.log", "grep '^ERROR' grep-lab/app.log"], "^は行頭です。"],
+          ["security.logからphpで終わる行を検索してください。", ["grep \"php$\" grep-lab/security.log", "grep 'php$' grep-lab/security.log"], "$は行末です。"],
+          ["apache_logsから40番台のステータスコードを検索してください。", ["grep \" 40[0-9] \" apache_logs", "grep ' 40[0-9] ' apache_logs"], "[0-9]は数字1文字です。"],
+          ["api.logからGETまたはPOSTで始まる行を検索してください。", ["grep -E \"^(GET|POST)\" grep-lab/api.log", "grep -E '^(GET|POST)' grep-lab/api.log"], "|を使う時は-Eが分かりやすいです。"],
+          ["apache_logsからpngまたはjpgを含む行を検索してください。", ["grep -E \"\\.png|\\.jpg\" apache_logs", "grep -E '\\.png|\\.jpg' apache_logs"], ".は特別な文字なので\\.で普通のドットにします。"]
+        ]
+      },
+      {
+        id: "extended",
+        label: "Extended Regex",
+        title: "-Eで読みやすく書く",
+        summary: "通常のgrepでも[0-9]や^や$は使えます。-Eを付けると、または検索、繰り返し、グループを読みやすく書けます。",
+        sample: "# 通常のgrepでも使える\ngrep \" 40[0-9] \" apache_logs\n\n# -Eで読みやすくなる\ngrep -E \"ERROR|WARN\" grep-lab/app.log\ngrep -E \"^(GET|POST)\" grep-lab/api.log\ngrep -E \"/api/[a-z]+\" grep-lab/api.log",
+        exercises: [
+          ["app.logからERRORまたはWARNを検索してください。", ["grep -E \"ERROR|WARN\" grep-lab/app.log", "grep -E 'ERROR|WARN' grep-lab/app.log"], "-Eで|を使います。"],
+          ["apache_logsから500番台を検索してください。", ["grep -E \" 50[0-9] \" apache_logs", "grep -E ' 50[0-9] ' apache_logs"], "500から509を拾います。"],
+          ["api.logからGETまたはPOSTを検索してください。", ["grep -E \"GET|POST\" grep-lab/api.log", "grep -E 'GET|POST' grep-lab/api.log"], "HTTPメソッドをまとめて探します。"],
+          ["security.logからALLOWまたはDENYを検索してください。", ["grep -E \"ALLOW|DENY\" grep-lab/security.log", "grep -E 'ALLOW|DENY' grep-lab/security.log"], "許可と拒否をまとめて見ます。"],
+          ["apache_logsから404または500番台を検索してください。", ["grep -E \" 404 | 50[0-9] \" apache_logs", "grep -E ' 404 | 50[0-9] ' apache_logs"], "複数のエラー条件をまとめます。"]
+        ]
+      },
+      {
+        id: "only-match",
+        label: "Only Match",
+        title: "一致した部分だけ取り出す",
+        summary: "-oを使うと、行全体ではなく一致した文字列だけを取り出せます。",
+        sample: "grep -o -E \" 40[0-9] \" apache_logs\ngrep -o -E \"/api/[a-z]+\" grep-lab/api.log",
+        exercises: [
+          ["apache_logsから40番台ステータスコード部分だけを表示してください。", ["grep -o -E \" 40[0-9] \" apache_logs", "grep -o -E ' 40[0-9] ' apache_logs", "grep -E -o \" 40[0-9] \" apache_logs"], "-oで一致部分だけです。"],
+          ["api.logから/api/で始まるパス部分だけを表示してください。", ["grep -o -E \"/api/[a-z]+\" grep-lab/api.log", "grep -o -E '/api/[a-z]+' grep-lab/api.log"], "[a-z]+で英小文字の連続です。"],
+          ["security.logからIPアドレスらしい部分だけを表示してください。", ["grep -o -E \"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+\" grep-lab/security.log", "grep -o -E '[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+' grep-lab/security.log"], "ドットは\\.で表します。"],
+          ["app.logからERRORまたはWARNだけを表示してください。", ["grep -o -E \"ERROR|WARN\" grep-lab/app.log", "grep -o -E 'ERROR|WARN' grep-lab/app.log"], "一致した単語だけになります。"],
+          ["apache_logsからHTTPステータスの40番台または50番台だけを表示してください。", ["grep -o -E \" [45]0[0-9] \" apache_logs", "grep -o -E ' [45]0[0-9] ' apache_logs"], "[45]で4または5です。"]
+        ]
+      },
+      {
+        id: "pipeline",
+        label: "Pipeline",
+        title: "grepをパイプにつなぐ",
+        summary: "grepは検索の入口です。見つけた行をwc、cut、sort、uniq、headへ渡して分析します。",
+        sample: "grep \" 404 \" apache_logs | wc -l\ngrep \" 404 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head",
+        exercises: [
+          ["apache_logsから404の件数を数えてください。", ["grep \" 404 \" apache_logs | wc -l", "grep ' 404 ' apache_logs | wc -l"], "grep結果をwc -lへ渡します。"],
+          ["apache_logsから404のパス上位10件を表示してください。", ["grep \" 404 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head", "grep ' 404 ' apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head"], "404行だけにしてからパスを集計します。"],
+          ["grep-lab内のerrorを含むファイル名だけ表示してください。", ["grep -l -i error grep-lab/*.log", "grep -i -l error grep-lab/*.log"], "-lと-iを組み合わせます。"],
+          ["security.logからDENYのIPだけを抜き出してください。", ["grep DENY grep-lab/security.log | cut -d ' ' -f 2", "grep DENY grep-lab/security.log | cut -d \" \" -f 2"], "絞り込んでから列を抜きます。"],
+          ["apache_logsから500番台の行をserver-error-lines.logに保存してください。", ["grep -E \" 50[0-9] \" apache_logs > server-error-lines.log", "grep -E ' 50[0-9] ' apache_logs > server-error-lines.log"], "grep結果を保存します。"]
+        ]
+      }
+    ];
+
+    const root = document.querySelector("#practice-root");
+    const solved = new Set();
+    const total = lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0);
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function lessonProgress(lesson) {
+      return lesson.exercises.filter((_, index) => solved.has(`${lesson.id}-${index}`)).length;
+    }
+
+    function updateProgress() {
+      const done = solved.size;
+      const percent = Math.round((done / total) * 100);
+      document.querySelectorAll("[data-total-progress]").forEach((element) => {
+        element.textContent = `${done} / ${total}問 正解`;
+      });
+      document.querySelectorAll("[data-total-meter]").forEach((element) => {
+        element.style.width = `${percent}%`;
+      });
+      lessons.forEach((lesson) => {
+        const count = lessonProgress(lesson);
+        document.querySelectorAll(`[data-lesson-progress="${lesson.id}"]`).forEach((element) => {
+          element.textContent = `${count} / ${lesson.exercises.length}`;
+        });
+      });
+    }
+
+    function makeExercises(lesson) {
+      return lesson.exercises.map(([question, answers, hint], index) => {
+        const answerText = answers.length === 1 ? answers[0] : answers.slice(0, 2).join(" または ");
+        return `
+          <article class="exercise-card" data-exercise="${lesson.id}-${index}">
+            <div class="exercise-head">
+              <span class="exercise-no">${lesson.label} ${String(index + 1).padStart(2, "0")}</span>
+              <span class="mini">例: <code>${escapeHtml(answerText)}</code></span>
+            </div>
+            <p>${escapeHtml(question)}</p>
+            <div class="input-row">
+              <input class="answer-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="${escapeHtml(lesson.title)}の練習${index + 1}" data-answers="${escapeHtml(JSON.stringify(answers))}" placeholder="$ ">
+              <button class="check-button" type="button">確認</button>
+            </div>
+            <p class="result" aria-live="polite"></p>
+            <p class="hint">ヒント: ${escapeHtml(hint)}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      root.innerHTML = lessons.map((lesson, lessonIndex) => `
+        <section id="lesson-${lesson.id}">
+          <div class="page">
+            <div class="section-head">
+              <div>
+                <span class="section-label">${escapeHtml(lesson.label)}</span>
+                <h2>${escapeHtml(lesson.title)}</h2>
+              </div>
+              <p class="lead">${escapeHtml(lesson.summary)}</p>
+            </div>
+
+            <div class="practice-layout">
+              <div>
+                <div class="command-block">
+                  <div class="command-title"><span>入力例</span><span>${escapeHtml(lesson.label)}</span></div>
+                  <pre><code>${escapeHtml(lesson.sample)}</code></pre>
+                </div>
+
+                <div class="trainer">
+                  <div class="trainer-top">
+                    <div class="trainer-title">
+                      <code>${escapeHtml(lesson.id)}</code>
+                      <span>${lesson.exercises.length}問</span>
+                    </div>
+                    <span class="mini">この章: <strong data-lesson-progress="${lesson.id}">0 / ${lesson.exercises.length}</strong></span>
+                  </div>
+                  <div class="trainer-body">
+                    ${makeExercises(lesson)}
+                  </div>
+                </div>
+              </div>
+
+              <aside class="progress-panel" aria-label="練習進捗">
+                <h3>進捗</h3>
+                <div class="meter" aria-hidden="true"><span data-total-meter></span></div>
+                <p class="progress-text" data-total-progress>0 / ${total}問 正解</p>
+                <p class="mini">正解したら、同じコマンドをTerminalでも実行し、出力を見比べます。</p>
+                <div class="lesson-list">
+                  ${lessons.map((item) => `
+                    <a href="#lesson-${item.id}"><code>${escapeHtml(item.label)}</code><span data-lesson-progress="${item.id}">0 / ${item.exercises.length}</span></a>
+                  `).join("")}
+                </div>
+                <div class="hero-actions" style="margin-top:16px;">
+                  ${lessonIndex > 0 ? `<a class="button secondary" href="#lesson-${lessons[lessonIndex - 1].id}">前へ</a>` : `<a class="button secondary" href="#regex">正規表現へ</a>`}
+                  ${lessonIndex < lessons.length - 1 ? `<a class="button" href="#lesson-${lessons[lessonIndex + 1].id}">次へ</a>` : `<a class="button" href="#finish">仕上げへ</a>`}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `).join("");
+
+      document.querySelectorAll(".exercise-card").forEach((card) => {
+        const input = card.querySelector(".answer-input");
+        const button = card.querySelector(".check-button");
+        const result = card.querySelector(".result");
+        const key = card.dataset.exercise;
+
+        function check() {
+          const answers = JSON.parse(input.dataset.answers).map(normalize);
+          const value = normalize(input.value);
+          if (answers.includes(value)) {
+            solved.add(key);
+            card.style.borderColor = "rgba(34, 99, 81, .45)";
+            result.textContent = "OKです。実際のTerminalでも実行して、出力を確認しましょう。";
+            result.className = "result ok";
+          } else {
+            result.textContent = "もう一度。オプション、引用符、スペース、ファイル名を確認してください。";
+            result.className = "result ng";
+          }
+          updateProgress();
+        }
+
+        button.addEventListener("click", check);
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            check();
+          }
+        });
+      });
+
+      updateProgress();
+    }
+
+    render();
+  </script>
+</body>
+</html>

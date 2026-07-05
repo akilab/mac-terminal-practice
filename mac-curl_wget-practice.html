@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac curl/wget Practice</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, input { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 10ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.4vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover, .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card, .note, .command-block, .trainer, .progress-panel, .option-table {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card { padding: 22px; }
+    .card h3 { margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong { color: var(--mint-dark); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--terminal);
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: .88rem;
+      line-height: 1.65;
+    }
+
+    .option-table {
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .practice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .trainer { overflow: hidden; }
+
+    .trainer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(241, 239, 232, .72);
+    }
+
+    .trainer-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      font-weight: 900;
+    }
+
+    .trainer-title code {
+      color: var(--rose-dark);
+      font-size: 1.06rem;
+    }
+
+    .trainer-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .exercise-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .exercise-no {
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .exercise-card p {
+      margin: 0;
+      color: #424650;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: .92rem;
+    }
+
+    .answer-input:focus {
+      border-color: var(--mint-dark);
+      outline: 3px solid rgba(207, 232, 220, .9);
+    }
+
+    .check-button {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button:focus-visible, .button:focus-visible {
+      outline: 3px solid rgba(201, 217, 238, .95);
+      outline-offset: 2px;
+    }
+
+    .result {
+      min-height: 1.6em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result.ok { color: var(--mint-dark); font-weight: 900; }
+    .result.ng { color: var(--rose-dark); font-weight: 900; }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .progress-panel {
+      position: sticky;
+      top: 72px;
+      padding: 18px;
+    }
+
+    .meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6e2d9;
+    }
+
+    .meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint-dark), var(--blue-dark));
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .lesson-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .lesson-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .lesson-list span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .sources {
+      padding: 34px 0 56px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .practice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .progress-panel { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .input-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+      .meter span { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac curl/wget Practice</p>
+      <h1>Webから、取れる人になる。</h1>
+      <p class="hero-text">
+        ファイルをダウンロードする <code>wget</code> から始めて、HTTPを観察し、APIを呼び出せる <code>curl</code> へ進む練習ページです。
+        保存、リダイレクト、ヘッダー確認、ステータスコード、GET/POSTまでを手で打って覚えます。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#setup">準備する</a>
+        <a class="button secondary" href="#options">違いを見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="curl/wget練習のTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> wget -O apache_logs https://example.com/logs/apache_logs<br>
+          Saving to: apache_logs<br><br>
+          <span class="prompt">MacBook-Air %</span> curl -I https://example.com<br>
+          HTTP/2 200<br>
+          content-type: text/html<br><br>
+          <span class="prompt">MacBook-Air %</span> curl -s -o /dev/null -w "%{http_code}\n" https://example.com<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#setup">準備</a>
+      <a href="#options">違い</a>
+      <a href="#reference">基本オプション</a>
+      <a href="#practice-root">演習</a>
+      <a href="#finish">仕上げ</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Setup</span>
+            <h2>練習場所とwgetを準備する</h2>
+          </div>
+          <p class="lead">
+            Macには通常 <code>curl</code> が入っています。一方で <code>wget</code> は入っていないことが多いので、
+            Homebrewで追加してから練習します。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>練習フォルダを作る</span><span>Terminalで実行</span></div>
+          <pre><code>mkdir -p ~/practice/curl-wget-practice/downloads
+cd ~/practice/curl-wget-practice</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>wgetがない場合</span><span>Homebrew</span></div>
+          <pre><code>brew install wget
+wget --version
+curl --version</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>この教材の前提:</strong>
+          作業場所は <code>~/practice/curl-wget-practice</code> です。
+          取得先には、練習用のApacheログとHTTP確認用の公開テストサービスを使います。
+          認証情報や社内URLは入力しません。
+        </div>
+      </div>
+    </section>
+
+    <section id="options">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">wget first</span>
+            <h2>先にwgetから覚える理由</h2>
+          </div>
+          <p class="lead">
+            <code>wget</code> は「URLからファイルを保存する」目的がはっきりしています。
+            <code>curl</code> は保存もできますが、HTTPリクエストを細かく作る道具でもあるため、後半で扱います。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">wget</span>
+            <h3>ファイル保存が得意</h3>
+            <p><code>wget URL</code> だけで、URL末尾の名前でファイル保存します。再開や保存先指定も分かりやすいです。</p>
+          </article>
+          <article class="card">
+            <span class="tag">curl</span>
+            <h3>HTTP操作が得意</h3>
+            <p>画面表示、保存、ヘッダー確認、POST、認証ヘッダーなど、HTTPリクエストを細かく作れます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Mac</span>
+            <h3>curlは標準、wgetは追加</h3>
+            <p>Macでは <code>curl</code> が最初から使えることが多く、<code>wget</code> はHomebrewで入れるのが一般的です。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="reference">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Options</span>
+            <h2>wgetとcurlの基本オプション</h2>
+          </div>
+          <p class="lead">
+            まずはよく使うものだけ覚えます。<code>wget</code> は保存、<code>curl</code> はHTTPの確認と送信に寄せて整理します。
+          </p>
+        </div>
+
+        <div class="option-table">
+          <table>
+            <thead>
+              <tr><th>コマンド</th><th>オプション</th><th>意味</th><th>例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>wget</code></td><td><code>-O</code></td><td>保存ファイル名を指定する</td><td><code>wget -O apache_logs URL</code></td></tr>
+              <tr><td><code>wget</code></td><td><code>-P</code></td><td>保存先フォルダを指定する</td><td><code>wget -P downloads URL</code></td></tr>
+              <tr><td><code>wget</code></td><td><code>-c</code></td><td>途中までのダウンロードを再開する</td><td><code>wget -c URL</code></td></tr>
+              <tr><td><code>wget</code></td><td><code>--spider</code></td><td>保存せず存在確認する</td><td><code>wget --spider URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-o</code></td><td>保存ファイル名を指定する</td><td><code>curl -L -o apache_logs URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-O</code></td><td>URL末尾の名前で保存する</td><td><code>curl -L -O URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-L</code></td><td>リダイレクトをたどる</td><td><code>curl -L URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-I</code></td><td>ヘッダーだけ見る</td><td><code>curl -I URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-s</code></td><td>進捗表示を抑える</td><td><code>curl -s URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-w</code></td><td>結果の情報を指定形式で表示する</td><td><code>curl -w "%{http_code}\n" URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-H</code></td><td>ヘッダーを追加する</td><td><code>curl -H "Accept: application/json" URL</code></td></tr>
+              <tr><td><code>curl</code></td><td><code>-X</code> / <code>-d</code></td><td>メソッドと送信データを指定する</td><td><code>curl -X POST -d "name=mac" URL</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>URLは引用符で囲む:</strong>
+          <code>?</code> や <code>&amp;</code> を含むURLは、シェルが別の意味として解釈することがあります。
+          練習では <code>"https://example.com/path?name=mac&amp;team=dev"</code> のように囲みます。
+        </div>
+      </div>
+    </section>
+
+    <div id="practice-root"></div>
+
+    <section id="finish">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Final Drill</span>
+            <h2>取る、見る、確かめる</h2>
+          </div>
+          <p class="lead">
+            <code>wget</code> はファイル取得の入口、<code>curl</code> はHTTP確認の入口です。
+            使い分けられると、ログ教材の準備、API調査、疎通確認が一気に楽になります。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>仕上げの例</span><span>wget / curl</span></div>
+          <pre><code>wget -O apache_logs "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs"
+curl -L -o apache_logs "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs"
+curl -I https://example.com
+curl -s -o /dev/null -w "%{http_code}\n" https://example.com</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="page sources">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.5rem);">参照元</h2>
+      <p class="mini">
+        ダウンロード練習にはElastic examplesのApache logs、HTTP確認にはexample.comとhttpbinを使います。
+      </p>
+      <p class="mini">
+        <a href="https://github.com/elastic/examples/tree/master/Common%20Data%20Formats/apache_logs">Elastic examples - Apache logs</a><br>
+        <a href="https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs">Raw apache_logs</a><br>
+        <a href="https://example.com/">example.com</a><br>
+        <a href="https://httpbin.org/">httpbin.org</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const logUrl = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs";
+    const lessons = [
+      {
+        id: "wget-basic",
+        label: "wget Basic",
+        title: "wgetで保存する",
+        summary: "wgetはURLからファイルを保存する道具です。まずは保存名と保存先を指定する形を覚えます。",
+        sample: "wget https://example.com/\nwget -O example.html https://example.com/\nwget -P downloads https://example.com/",
+        exercises: [
+          ["example.comをwgetで取得してください。", ["wget https://example.com/"], "wget URL の形です。"],
+          ["example.comをexample.htmlという名前で保存してください。", ["wget -O example.html https://example.com/"], "-Oで保存ファイル名を指定します。"],
+          ["example.comをdownloadsフォルダに保存してください。", ["wget -P downloads https://example.com/"], "-Pで保存先フォルダを指定します。"],
+          ["example.comを保存せず、標準出力へ出してheadにつないでください。", ["wget -q -O - https://example.com/ | head"], "-q -O - で画面へ出せます。"],
+          ["example.comが取得できるか、保存せず確認してください。", ["wget --spider https://example.com/"], "--spiderは取得確認だけ行います。"]
+        ]
+      },
+      {
+        id: "wget-file",
+        label: "wget File",
+        title: "wgetでログをダウンロードする",
+        summary: "大きめのファイルを名前を決めて保存し、再開や速度制限のオプションも見ます。",
+        sample: `wget -O apache_logs "${logUrl}"\nwget -P downloads "${logUrl}"\nwget -c -O apache_logs "${logUrl}"`,
+        exercises: [
+          ["Apacheログをapache_logsという名前で保存してください。", [`wget -O apache_logs "${logUrl}"`, `wget -O apache_logs '${logUrl}'`], "-Oで教材用のファイル名にします。"],
+          ["Apacheログをdownloadsフォルダに保存してください。", [`wget -P downloads "${logUrl}"`, `wget -P downloads '${logUrl}'`], "-Pで保存先を指定します。"],
+          ["途中までの取得を再開できる形でApacheログを保存してください。", [`wget -c -O apache_logs "${logUrl}"`, `wget -c -O apache_logs '${logUrl}'`, `wget -O apache_logs -c "${logUrl}"`, `wget -O apache_logs -c '${logUrl}'`], "-cは再開です。"],
+          ["速度を200kに制限してApacheログを保存してください。", [`wget --limit-rate=200k -O apache_logs "${logUrl}"`, `wget --limit-rate=200k -O apache_logs '${logUrl}'`], "ネットワークに優しくしたい時に使います。"],
+          ["ApacheログのURLが存在するか、保存せず確認してください。", [`wget --spider "${logUrl}"`, `wget --spider '${logUrl}'`], "先にURL確認だけできます。"]
+        ]
+      },
+      {
+        id: "curl-basic",
+        label: "curl Basic",
+        title: "curlで表示と保存をする",
+        summary: "curlは標準ではレスポンス本文をTerminalに表示します。保存したい時は-oや-Oを使います。",
+        sample: `curl https://example.com\ncurl -o example.html https://example.com\ncurl -L -o apache_logs "${logUrl}"`,
+        exercises: [
+          ["example.comの内容をTerminalに表示してください。", ["curl https://example.com"], "curl URL だけだと本文が表示されます。"],
+          ["example.comをexample.htmlという名前で保存してください。", ["curl -o example.html https://example.com"], "-oで保存名を指定します。"],
+          ["Apacheログをapache_logsという名前で保存してください。", [`curl -L -o apache_logs "${logUrl}"`, `curl -L -o apache_logs '${logUrl}'`], "-Lでリダイレクトもたどります。"],
+          ["ApacheログをURL末尾の名前で保存してください。", [`curl -L -O "${logUrl}"`, `curl -L -O '${logUrl}'`], "-OはURL末尾の名前で保存します。"],
+          ["example.comを静かに取得してheadにつないでください。", ["curl -s https://example.com | head"], "-sで進捗表示を抑えます。"]
+        ]
+      },
+      {
+        id: "curl-status",
+        label: "HTTP Check",
+        title: "ヘッダーとステータスを見る",
+        summary: "curlはHTTPの観察が得意です。本文ではなく、ヘッダー、ステータスコード、応答時間を確認します。",
+        sample: "curl -I https://example.com\ncurl -s -o /dev/null -w \"%{http_code}\\n\" https://example.com\ncurl -L -I https://httpbin.org/redirect/1",
+        exercises: [
+          ["example.comのヘッダーだけ表示してください。", ["curl -I https://example.com"], "-Iでヘッダーだけ表示します。"],
+          ["httpbinのリダイレクトをたどってヘッダーを表示してください。", ["curl -L -I https://httpbin.org/redirect/1"], "-Lと-Iを組み合わせます。"],
+          ["example.comのHTTPステータスコードだけ表示してください。", ["curl -s -o /dev/null -w \"%{http_code}\\n\" https://example.com", "curl -s -o /dev/null -w '%{http_code}\\n' https://example.com"], "-wで表示したい情報を指定します。"],
+          ["example.comの合計時間だけ表示してください。", ["curl -s -o /dev/null -w \"%{time_total}\\n\" https://example.com", "curl -s -o /dev/null -w '%{time_total}\\n' https://example.com"], "簡易的な応答時間確認です。"],
+          ["存在しないURLで失敗を検知しやすい形にしてください。", ["curl --fail https://example.com/not-found"], "--failはHTTPエラーを失敗として扱います。"]
+        ]
+      },
+      {
+        id: "curl-get",
+        label: "GET",
+        title: "GETリクエストを送る",
+        summary: "クエリ文字列を付けたGET、URLエンコード、ヘッダー追加、User-Agentの指定を練習します。",
+        sample: "curl \"https://httpbin.org/get?tool=curl\"\ncurl -G --data-urlencode \"tool=curl practice\" https://httpbin.org/get\ncurl -H \"Accept: application/json\" https://httpbin.org/get",
+        exercises: [
+          ["tool=curlをクエリに付けてGETしてください。", ["curl \"https://httpbin.org/get?tool=curl\"", "curl 'https://httpbin.org/get?tool=curl'"], "?を含むURLは引用符で囲みます。"],
+          ["tool=curl practiceをURLエンコードしてGETしてください。", ["curl -G --data-urlencode \"tool=curl practice\" https://httpbin.org/get", "curl -G --data-urlencode 'tool=curl practice' https://httpbin.org/get"], "-Gと--data-urlencodeを使います。"],
+          ["Acceptヘッダーにapplication/jsonを指定してGETしてください。", ["curl -H \"Accept: application/json\" https://httpbin.org/get", "curl -H 'Accept: application/json' https://httpbin.org/get"], "-Hでヘッダーを追加します。"],
+          ["User-AgentをMacTerminalPractice/1.0にして確認してください。", ["curl -A \"MacTerminalPractice/1.0\" https://httpbin.org/user-agent", "curl -A 'MacTerminalPractice/1.0' https://httpbin.org/user-agent"], "-AはUser-Agent指定です。"],
+          ["GET結果からtoolをgrepしてください。", ["curl -s \"https://httpbin.org/get?tool=curl\" | grep tool", "curl -s 'https://httpbin.org/get?tool=curl' | grep tool"], "curlの結果はパイプで次へ渡せます。"]
+        ]
+      },
+      {
+        id: "curl-post",
+        label: "POST",
+        title: "POSTでデータを送る",
+        summary: "フォーム送信とJSON送信を練習します。ここではhttpbinにだけ送るので、実サービスのデータは使いません。",
+        sample: "curl -X POST -d \"name=mac\" https://httpbin.org/post\ncurl -X POST -d \"name=mac\" -d \"role=student\" https://httpbin.org/post\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"name\":\"mac\"}' https://httpbin.org/post",
+        exercises: [
+          ["name=macをPOSTしてください。", ["curl -X POST -d \"name=mac\" https://httpbin.org/post", "curl -X POST -d 'name=mac' https://httpbin.org/post"], "-dで送信データを指定します。"],
+          ["name=macとrole=studentをPOSTしてください。", ["curl -X POST -d \"name=mac\" -d \"role=student\" https://httpbin.org/post", "curl -X POST -d 'name=mac' -d 'role=student' https://httpbin.org/post"], "-dは複数指定できます。"],
+          ["JSONとしてname=macをPOSTしてください。", ["curl -X POST -H \"Content-Type: application/json\" -d '{\"name\":\"mac\"}' https://httpbin.org/post", "curl -X POST -H 'Content-Type: application/json' -d '{\"name\":\"mac\"}' https://httpbin.org/post"], "JSON送信ではContent-Typeを指定します。"],
+          ["静かにPOSTして、結果からformをgrepしてください。", ["curl -s -X POST -d \"name=mac\" https://httpbin.org/post | grep form", "curl -s -X POST -d 'name=mac' https://httpbin.org/post | grep form"], "送った内容を確認します。"],
+          ["tokenという仮のヘッダーを付けてGETしてください。", ["curl -H \"Authorization: Bearer TOKEN\" https://httpbin.org/headers", "curl -H 'Authorization: Bearer TOKEN' https://httpbin.org/headers"], "本物のトークンは教材に入力しません。"]
+        ]
+      },
+      {
+        id: "curl-reliable",
+        label: "Reliable",
+        title: "失敗に気づきやすくする",
+        summary: "通信は失敗します。タイムアウト、リトライ、詳細表示、エラー表示を使って原因を見やすくします。",
+        sample: "curl --connect-timeout 5 https://example.com\ncurl --retry 3 https://example.com\ncurl -v https://example.com",
+        exercises: [
+          ["接続タイムアウトを5秒にしてexample.comへアクセスしてください。", ["curl --connect-timeout 5 https://example.com"], "待ちすぎを防げます。"],
+          ["3回リトライする形でexample.comへアクセスしてください。", ["curl --retry 3 https://example.com"], "一時的な失敗に備えます。"],
+          ["詳細表示つきでexample.comへアクセスしてください。", ["curl -v https://example.com"], "-vで通信の詳細が見えます。"],
+          ["静かに実行しつつエラーは表示する形にしてください。", ["curl -sS https://example.com"], "-sSはスクリプトでよく使います。"],
+          ["HTTPエラーを失敗扱いにし、3回リトライしてください。", ["curl --fail --retry 3 https://example.com", "curl --retry 3 --fail https://example.com"], "失敗検知とリトライを組み合わせます。"]
+        ]
+      },
+      {
+        id: "pipeline",
+        label: "Pipeline",
+        title: "取得結果を次のコマンドへ渡す",
+        summary: "wgetもcurlも、取得した本文を標準出力へ出せばhead、grep、wcなどに渡せます。",
+        sample: "wget -q -O - https://example.com | head\ncurl -s https://example.com | head\ncurl -s -I https://example.com | grep -i content-type",
+        exercises: [
+          ["wgetでexample.comを標準出力に出してheadへ渡してください。", ["wget -q -O - https://example.com | head"], "保存せず中身だけ確認します。"],
+          ["curlでexample.comを静かに取得してheadへ渡してください。", ["curl -s https://example.com | head"], "curlは標準出力と相性が良いです。"],
+          ["example.comのヘッダーからcontent-typeを検索してください。", ["curl -s -I https://example.com | grep -i content-type"], "ヘッダー確認とgrepを組み合わせます。"],
+          ["example.comの本文サイズをwc -cで数えてください。", ["curl -s https://example.com | wc -c"], "取得結果をそのまま集計します。"],
+          ["HTTPステータスコードをstatus.txtへ保存してください。", ["curl -s -o /dev/null -w \"%{http_code}\\n\" https://example.com > status.txt", "curl -s -o /dev/null -w '%{http_code}\\n' https://example.com > status.txt"], "調査結果をファイルへ残します。"]
+        ]
+      }
+    ];
+
+    const root = document.querySelector("#practice-root");
+    const solved = new Set();
+    const total = lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0);
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function lessonProgress(lesson) {
+      return lesson.exercises.filter((_, index) => solved.has(`${lesson.id}-${index}`)).length;
+    }
+
+    function updateProgress() {
+      const done = solved.size;
+      const percent = Math.round((done / total) * 100);
+      document.querySelectorAll("[data-total-progress]").forEach((element) => {
+        element.textContent = `${done} / ${total}問 正解`;
+      });
+      document.querySelectorAll("[data-total-meter]").forEach((element) => {
+        element.style.width = `${percent}%`;
+      });
+      lessons.forEach((lesson) => {
+        const count = lessonProgress(lesson);
+        document.querySelectorAll(`[data-lesson-progress="${lesson.id}"]`).forEach((element) => {
+          element.textContent = `${count} / ${lesson.exercises.length}`;
+        });
+      });
+    }
+
+    function makeExercises(lesson) {
+      return lesson.exercises.map(([question, answers, hint], index) => {
+        const answerText = answers.length === 1 ? answers[0] : answers.slice(0, 2).join(" または ");
+        return `
+          <article class="exercise-card" data-exercise="${lesson.id}-${index}">
+            <div class="exercise-head">
+              <span class="exercise-no">${lesson.label} ${String(index + 1).padStart(2, "0")}</span>
+              <span class="mini">例: <code>${escapeHtml(answerText)}</code></span>
+            </div>
+            <p>${escapeHtml(question)}</p>
+            <div class="input-row">
+              <input class="answer-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="${escapeHtml(lesson.title)}の練習${index + 1}" data-answers="${escapeHtml(JSON.stringify(answers))}" placeholder="$ ">
+              <button class="check-button" type="button">確認</button>
+            </div>
+            <p class="result" aria-live="polite"></p>
+            <p class="hint">ヒント: ${escapeHtml(hint)}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      root.innerHTML = lessons.map((lesson, lessonIndex) => `
+        <section id="lesson-${lesson.id}">
+          <div class="page">
+            <div class="section-head">
+              <div>
+                <span class="section-label">${escapeHtml(lesson.label)}</span>
+                <h2>${escapeHtml(lesson.title)}</h2>
+              </div>
+              <p class="lead">${escapeHtml(lesson.summary)}</p>
+            </div>
+
+            <div class="practice-layout">
+              <div>
+                <div class="command-block">
+                  <div class="command-title"><span>入力例</span><span>${escapeHtml(lesson.label)}</span></div>
+                  <pre><code>${escapeHtml(lesson.sample)}</code></pre>
+                </div>
+
+                <div class="trainer">
+                  <div class="trainer-top">
+                    <div class="trainer-title">
+                      <code>${escapeHtml(lesson.id)}</code>
+                      <span>${lesson.exercises.length}問</span>
+                    </div>
+                    <span class="mini">この章: <strong data-lesson-progress="${lesson.id}">0 / ${lesson.exercises.length}</strong></span>
+                  </div>
+                  <div class="trainer-body">
+                    ${makeExercises(lesson)}
+                  </div>
+                </div>
+              </div>
+
+              <aside class="progress-panel" aria-label="練習進捗">
+                <h3>進捗</h3>
+                <div class="meter" aria-hidden="true"><span data-total-meter></span></div>
+                <p class="progress-text" data-total-progress>0 / ${total}問 正解</p>
+                <p class="mini">正解したら、同じコマンドをTerminalでも実行し、出力を見比べます。</p>
+                <div class="lesson-list">
+                  ${lessons.map((item) => `
+                    <a href="#lesson-${item.id}"><code>${escapeHtml(item.label)}</code><span data-lesson-progress="${item.id}">0 / ${item.exercises.length}</span></a>
+                  `).join("")}
+                </div>
+                <div class="hero-actions" style="margin-top:16px;">
+                  ${lessonIndex > 0 ? `<a class="button secondary" href="#lesson-${lessons[lessonIndex - 1].id}">前へ</a>` : `<a class="button secondary" href="#reference">基本オプションへ</a>`}
+                  ${lessonIndex < lessons.length - 1 ? `<a class="button" href="#lesson-${lessons[lessonIndex + 1].id}">次へ</a>` : `<a class="button" href="#finish">仕上げへ</a>`}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `).join("");
+
+      document.querySelectorAll(".exercise-card").forEach((card) => {
+        const input = card.querySelector(".answer-input");
+        const button = card.querySelector(".check-button");
+        const result = card.querySelector(".result");
+        const key = card.dataset.exercise;
+
+        function check() {
+          const answers = JSON.parse(input.dataset.answers).map(normalize);
+          const value = normalize(input.value);
+          if (answers.includes(value)) {
+            solved.add(key);
+            card.style.borderColor = "rgba(34, 99, 81, .45)";
+            result.textContent = "OKです。実際のTerminalでも実行して、出力を確認しましょう。";
+            result.className = "result ok";
+          } else {
+            result.textContent = "もう一度。オプション、引用符、スペース、ファイル名を確認してください。";
+            result.className = "result ng";
+          }
+          updateProgress();
+        }
+
+        button.addEventListener("click", check);
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            check();
+          }
+        });
+      });
+
+      updateProgress();
+    }
+
+    render();
+  </script>
+</body>
+</html>

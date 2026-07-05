@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI開発のためのMac初期設定ガイド</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: var(--blue-dark);
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3.1rem, 8vw, 7.7rem);
+      font-weight: 700;
+    }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) {
+      background: var(--gold);
+    }
+
+    .dot:nth-child(3) {
+      background: var(--mint);
+    }
+
+    .terminal {
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .88rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card,
+    .note,
+    .command-block {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card {
+      padding: 22px;
+    }
+
+    .card h3 {
+      margin-bottom: 8px;
+      font-size: 1.08rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong {
+      color: var(--mint-dark);
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .68);
+    }
+
+    .checklist input {
+      width: 20px;
+      height: 20px;
+      margin-top: 3px;
+      accent-color: var(--mint-dark);
+    }
+
+    .checklist span {
+      color: var(--muted);
+    }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: #22242b;
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .9rem;
+      line-height: 1.65;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    .steps {
+      counter-reset: steps;
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      counter-increment: steps;
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .68);
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .steps strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .steps p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .74);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 15px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .kbd {
+      display: inline-flex;
+      min-width: 1.8em;
+      min-height: 1.8em;
+      align-items: center;
+      justify-content: center;
+      margin: 0 2px;
+      padding: 0 6px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .82em;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .callout {
+      padding: 24px;
+      border-left: 5px solid var(--rose-dark);
+      border-radius: var(--radius);
+      background: rgba(233, 183, 189, .22);
+    }
+
+    .callout h3 {
+      margin-bottom: 8px;
+    }
+
+    .callout p,
+    .sources p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .sources {
+      padding: 34px 0 56px;
+    }
+
+    .source-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .source-list a {
+      padding: 7px 12px;
+      border: 1px solid rgba(33, 35, 42, .13);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .7);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    @media (max-width: 860px) {
+      .hero,
+      .section-head,
+      .grid.two,
+      .grid.three {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 24px, 1160px);
+      }
+
+      .toc .page {
+        width: 100%;
+        padding-left: 12px;
+      }
+
+      section {
+        padding: 48px 0;
+      }
+
+      .steps li {
+        grid-template-columns: 42px 1fr;
+      }
+
+      .steps li::before {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .toc,
+      .hero-actions {
+        display: none;
+      }
+
+      section,
+      .hero {
+        break-inside: avoid;
+        padding: 28px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac AI Development Setup</p>
+      <h1>はじめてのMacを、AI開発の入口にする。</h1>
+      <p class="hero-text">
+        Windows中心で作業してきた人が、MacをAI開発やWeb開発に使い始めるための初期設定ガイドです。
+        まずは開発に必要な道具を整え、最後にMacらしい操作の違いを確認します。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#setup">セットアップへ進む</a>
+        <a class="button secondary" href="#windows-mac">Windows対比を見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="キッティング用の端末イメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> xcode-select --install<br>
+          <span class="prompt">MacBook-Air %</span> brew install uv go node<br>
+          <span class="prompt">MacBook-Air %</span> code .<br><br>
+          <strong>Done:</strong> editor, languages, browsers, basics.
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#policy">事前確認</a>
+      <a href="#account-handover">アカウント移行</a>
+      <a href="#setup">初期設定</a>
+      <a href="#spotlight">Spotlight</a>
+      <a href="#security">更新と保護</a>
+      <a href="#tools">ツール導入</a>
+      <a href="#verify">確認</a>
+      <a href="#daily-update">日々の更新</a>
+      <a href="#windows-mac">Windows対比</a>
+      <a href="#habits">Macの作法</a>
+      <a href="#trouble">困った時</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="policy">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Before Start</span>
+            <h2>最初に決めること</h2>
+          </div>
+          <p class="lead">
+            Apple AccountやiCloud同期は、使い方に合わせて選びます。
+            迷う項目は「あとで設定」に寄せ、まずは開発できる状態を作ります。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Apple Account</span>
+            <h3>iCloud同期は目的を決めて選ぶ</h3>
+            <p>iCloud Drive、写真、キーチェーン、Safari履歴などは便利ですが、開発用Macに何を同期するかを先に決めておくと管理しやすくなります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Local User</span>
+            <h3>ローカルユーザー名を決める</h3>
+            <p>例: 氏名ローマ字、ハンドル名、学習用の短い名前。あとでパスが変わると開発環境の説明がずれるため、最初に決めます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Security</span>
+            <h3>Touch IDと画面ロック</h3>
+            <p>Touch IDを登録し、スリープ解除時のパスワード要求を有効にします。カフェ作業よりも会議室作業で油断しがちです。</p>
+          </article>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>おすすめ方針:</strong>
+          Apple Accountは「App StoreやiCloudを使う時にサインイン」。写真、メッセージ、キーチェーン同期は、開発用Macに持ち込みたい情報だけを選びます。
+        </div>
+      </div>
+    </section>
+
+    <section id="account-handover">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Account Handover</span>
+            <h2>作業用アカウントから移行する</h2>
+          </div>
+          <p class="lead">
+            検収や初期作業のために用意された作業用アカウントで最初にログインし、
+            各自のローカルユーザーを作成してから、作業用アカウントを使わない状態にします。
+          </p>
+        </div>
+
+        <div class="callout">
+          <h3>ここで扱うのはMacのローカルユーザー</h3>
+          <p>
+            Apple AccountはiCloudやApp Storeに使うアカウントです。
+            ここで作るローカルユーザーは、このMacへログインするためのアカウントです。
+            まずローカルユーザーを整え、その後でApple Accountの同期有無を判断します。
+          </p>
+        </div>
+
+        <ol class="steps" style="margin-top:16px;">
+          <li>
+            <div>
+              <strong>作業用アカウントでログインする</strong>
+              <p>検収用に用意されたユーザーでMacへ入ります。初回ログイン後、システム設定を開けることを確認します。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>自分用のローカルユーザーを作成する</strong>
+              <p>Appleメニュー → システム設定 → ユーザとグループ → ユーザーを追加。開発端末として自分でツールを入れる場合は、アカウント種別を「管理者」にします。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>新しいユーザーでログインし直す</strong>
+              <p>作業用アカウントからログアウトし、自分用アカウントでログインします。Touch ID、キーボード、Finder、Dockなどの設定はこのユーザー側で整えます。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>管理者権限を確認する</strong>
+              <p>システム設定で鍵付きの変更や、ターミナルで管理者パスワードが必要な操作を実行できるか確認します。ここを確認する前に作業用アカウントを消さないでください。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>作業用アカウントを無効化または削除する</strong>
+              <p>macOSの画面操作では「ユーザとグループ」から作業用アカウントを削除するのが分かりやすい方法です。検収ログなどを残す必要がある場合は、削除前に管理者へ確認します。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="grid two" style="margin-top:16px;">
+          <div class="note">
+            <strong>削除前チェック:</strong>
+            自分用アカウントでログインできる、管理者権限がある、必要な検収メモやファイルが残っていない、復旧できる管理者アカウントが少なくとも1つあることを確認します。
+          </div>
+          <div class="note">
+            <strong>削除しない運用もあり:</strong>
+            一時的に残す場合は、作業用アカウントを普段使いしない、Dockやブラウザに個人情報を残さない、パスワードの扱いを管理者側で決める、というルールを明確にします。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">First 45 Minutes</span>
+            <h2>初期設定の流れ</h2>
+          </div>
+          <p class="lead">
+            ここは全員で画面を合わせて進めます。設定名が見つからない時は、左上のAppleメニューか「システム設定」の検索を使います。
+          </p>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <div>
+              <strong>Wi-Fiに接続し、macOSアップデートを確認</strong>
+              <p>Appleメニュー → システム設定 → 一般 → ソフトウェアアップデート。Windows Updateに相当する場所です。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>ローカルユーザー、Touch ID、画面ロックを整える</strong>
+              <p>Touch IDは便利ですが、パスワードを忘れないようにします。パスワード管理アプリを使う場合は、最初にログインできる状態にしておきます。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>FinderとDockを使いやすくする</strong>
+              <p>Finderのサイドバーに「ホーム」「デスクトップ」「ダウンロード」を表示。Dockはよく使うアプリだけに絞ります。</p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>ターミナルを開き、開発用コマンドを入れる</strong>
+              <p>Spotlightで「ターミナル」を検索します。以降のコマンドは1行ずつコピーして実行します。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="spotlight">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Mac Superpower</span>
+            <h2>Spotlightを使う</h2>
+          </div>
+          <p class="lead">
+            Spotlightは、アプリ、ファイル、設定、計算、変換をすばやく呼び出せるMac標準の検索機能です。
+            Windowsのスタート検索に近いですが、Macでは作業の入口として毎日使います。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Open</span>
+            <h3><span class="kbd">⌘</span> + <span class="kbd">Space</span>で開く</h3>
+            <p>画面中央に検索欄が出ます。アプリ名、ファイル名、設定名を入力し、候補を選んでEnterで開きます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Apps</span>
+            <h3>アプリ起動に使う</h3>
+            <p>「code」「chrome」「terminal」「activity」など、数文字だけで目的のアプリを開けます。Dockを探す時間が減ります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Quick</span>
+            <h3>計算と単位変換にも使う</h3>
+            <p><code>120*1.1</code>、<code>10 USD JPY</code>、<code>32 inch cm</code> のように入力すると、簡単な答えをすぐ確認できます。</p>
+          </article>
+        </div>
+
+        <div class="table-wrap" style="margin-top:16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>探したいもの</th>
+                <th>入力例</th>
+                <th>使いどころ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>アプリ</td>
+                <td><code>terminal</code> / <code>vscode</code> / <code>chrome</code></td>
+                <td>LaunchpadやFinderを開かずに起動する。</td>
+              </tr>
+              <tr>
+                <td>設定</td>
+                <td><code>software update</code> / <code>firewall</code> / <code>keyboard</code></td>
+                <td>システム設定の奥にある項目へすばやく移動する。</td>
+              </tr>
+              <tr>
+                <td>ファイル</td>
+                <td><code>README</code> / <code>invoice</code> / <code>.py</code></td>
+                <td>保存場所を忘れたファイルを探す。候補を選んでCommandキーを押すと場所を確認できます。</td>
+              </tr>
+              <tr>
+                <td>計算・変換</td>
+                <td><code>2048/8</code> / <code>1 mile km</code></td>
+                <td>ブラウザや電卓アプリを開かずに軽い確認を済ませる。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>最初の練習:</strong>
+          <span class="kbd">⌘</span> + <span class="kbd">Space</span> → <code>terminal</code> → <span class="kbd">Enter</span>、
+          次に <code>activity monitor</code>、<code>software update</code>、<code>firewall</code> を検索してみます。
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Update & Firewall</span>
+            <h2>更新とファイアウォール</h2>
+          </div>
+          <p class="lead">
+            Windows Updateに相当するのはmacOSの「ソフトウェアアップデート」です。
+            開発ツールを入れる前に、OS更新とネットワーク保護の場所だけ押さえておきます。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <span class="tag">Windows Update相当</span>
+            <h3>ソフトウェアアップデート</h3>
+            <p>Appleメニュー → システム設定 → 一般 → ソフトウェアアップデート。セキュリティ更新やmacOS更新をここで確認します。Spotlightで「software update」と検索しても開けます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Firewall</span>
+            <h3>ファイアウォール</h3>
+            <p>Appleメニュー → システム設定 → ネットワーク → ファイアウォール。外部からMac上のアプリへ接続される通信、つまりインバウンド接続を制御します。</p>
+          </article>
+        </div>
+
+        <div class="grid two" style="margin-top:16px;">
+          <div class="note">
+            <strong>おすすめ:</strong>
+            自宅や外出先のWi-Fiで使うMacは、ファイアウォールをONにしておくと安心です。開発サーバーや共有機能がつながらない時は、ファイアウォールの「オプション」で許可状態を確認します。
+          </div>
+          <div class="note">
+            <strong>アウトバウンド制御について:</strong>
+            macOS標準のファイアウォール画面は、アプリが外部へ接続する通信を細かく止める用途ではありません。macOSには低レベルなパケットフィルタ機能もありますが、アプリ単位で分かりやすく制御するものではないため、外向き通信の監視や制御が必要な場合は専用ツールやネットワーク側の制御を検討します。
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>更新前の注意:</strong>
+          大きなmacOSアップグレードは時間がかかることがあります。バッテリーではなく電源接続、作業ファイル保存、時間に余裕がある時に実行します。
+        </div>
+
+        <div class="callout" style="margin-top:16px;">
+          <h3>外向き通信を見たい時はLuLu</h3>
+          <p>
+            macOS標準のFirewallでは、アプリごとのアウトバウンド通信を分かりやすく制御できません。
+            無償で始めやすい選択肢としては、Objective-Seeの <a href="https://objective-see.org/products/lulu.html">LuLu</a> があります。
+            未知の外向き通信を検知して、アプリ単位で許可/拒否ルールを作れるオープンソースのFirewallです。
+            最初から必須ではありませんが、AIツールや開発ツールがどこへ通信しているかを確認したくなった時の候補として覚えておくと便利です。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Install</span>
+            <h2>開発ツールを入れる</h2>
+          </div>
+          <p class="lead">
+            まずAppleのコマンドラインツール、次にHomebrew、その後に開発ツールを入れます。
+            コピー前にURLが公式かどうかを必ず確認します。
+          </p>
+        </div>
+
+        <div class="callout">
+          <h3>ターミナルでの約束</h3>
+          <p>パスワード入力中は文字が表示されません。止まって見えても入力できています。知らないコマンドをネットから貼り付ける時は、必ずリーダーに確認します。</p>
+        </div>
+
+        <div class="grid two" style="margin-top:16px;">
+          <article class="card">
+            <span class="tag">Why</span>
+            <h3>Apple コマンドラインツールとは</h3>
+            <p><code>xcode-select --install</code> で入る、Mac標準の開発用部品です。Git、コンパイラ、ビルドに必要な基本ツールが含まれます。Homebrewや一部の開発ツールが内部で使うため、最初に入れておきます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Why</span>
+            <h3>Homebrewとは</h3>
+            <p>Mac用のパッケージマネージャーです。<code>brew install</code> で開発ツールをまとめて入れたり、更新したりできます。uv、Go、Node、Git、VS Code、Chromeなどを同じ作法で管理できるようになります。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>1. Apple コマンドラインツール</span><span>最初だけ</span></div>
+          <pre><code>xcode-select --install</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>2. Homebrew</span><span>公式: brew.sh</span></div>
+          <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>Apple SiliconのMacの場合:</strong>
+          Homebrewの最後に表示される「Next steps」を必ず実行します。多くの場合、<code>/opt/homebrew/bin/brew</code> を使えるようにする設定が表示されます。
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>3. ブラウザ・エディタ・言語ツール</span><span>まとめて導入</span></div>
+          <pre><code>brew install --cask visual-studio-code google-chrome firefox appcleaner
+brew install uv go node git ripgrep</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>4. Rust</span><span>rustupで導入</span></div>
+          <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+. "$HOME/.cargo/env"
+rustc --version
+cargo --version</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>Rustを入れる理由:</strong>
+          Rust本体を書く予定がなくても、Rust製の開発ツールは <code>cargo install</code> で配布されることがあります。
+          <code>rustup</code> はRust本体、<code>cargo</code>、<code>rustc</code> をまとめて管理する公式推奨の方法です。
+          インストール後に <code>cargo</code> が見つからない場合は、ターミナルを開き直します。
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>5. Pythonはuvで管理</span><span>例: 最新安定版を導入</span></div>
+          <pre><code>uv python install
+uv python list</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>6. Claude Code</span><span>利用開始時</span></div>
+          <pre><code># Claude Codeを使う準備ができたら実行
+curl -fsSL https://claude.ai/install.sh | bash
+claude</code></pre>
+        </div>
+
+        <p class="mini">
+          Claude Codeは公式ドキュメント上ではmacOS 13.0以上、4GB以上のRAM、インターネット接続が要件です。
+          インストール前に、利用規約、料金、ログ、ソースコードの取り扱い方針を確認してください。
+        </p>
+      </div>
+    </section>
+
+    <section id="verify">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Check</span>
+            <h2>入ったか確認する</h2>
+          </div>
+          <p class="lead">
+            ここで全員の画面を揃えます。エラーが出た人は先に進まず、隣の人と同じ表示になるまで確認します。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <ul class="checklist">
+            <li><input type="checkbox"><span><strong>Homebrew:</strong> <code>brew --version</code> でバージョンが表示される</span></li>
+            <li><input type="checkbox"><span><strong>VS Code:</strong> アプリが開ける。必要ならCommand Paletteで <code>Shell Command: Install 'code' command in PATH</code> を実行</span></li>
+            <li><input type="checkbox"><span><strong>Python:</strong> <code>uv python list</code> でPython一覧が表示される</span></li>
+            <li><input type="checkbox"><span><strong>Go:</strong> <code>go version</code> が表示される</span></li>
+          </ul>
+          <ul class="checklist">
+            <li><input type="checkbox"><span><strong>Node:</strong> <code>node -v</code> と <code>npm -v</code> が表示される</span></li>
+            <li><input type="checkbox"><span><strong>Rust:</strong> <code>rustc --version</code> と <code>cargo --version</code> が表示される</span></li>
+            <li><input type="checkbox"><span><strong>Git:</strong> <code>git --version</code> が表示される</span></li>
+            <li><input type="checkbox"><span><strong>Chrome/Firefox:</strong> どちらも起動できる</span></li>
+            <li><input type="checkbox"><span><strong>AppCleaner:</strong> アプリ一覧が表示できる。必要なアプリやセキュリティ関連のものは不用意に消さない</span></li>
+          </ul>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>まとめて確認</span><span>コピー用</span></div>
+          <pre><code>brew --version
+uv --version
+go version
+node -v
+npm -v
+rustc --version
+cargo --version
+git --version
+rg --version</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="daily-update">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Maintenance</span>
+            <h2>日々の更新作業</h2>
+          </div>
+          <p class="lead">
+            開発ツールは入れて終わりではありません。週1回程度、作業前にまとめて更新すると、
+            セキュリティ修正やCLIツールの不具合修正を取り込みやすくなります。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Homebrew</span>
+            <h3>brewで入れたツール</h3>
+            <p>Homebrew本体の情報を更新し、入れているCLIやアプリを更新します。ChromeやVS Codeなどのcaskアプリも対象です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Rust</span>
+            <h3>Rust本体</h3>
+            <p><code>rustup update</code> でRustのツールチェーンを更新します。Rust製ツールをビルドするための土台です。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Cargo</span>
+            <h3>cargoで入れたツール</h3>
+            <p><code>cargo install</code> で入れたCLIは、基本的に個別の再インストールで更新します。何を入れたかをメモしておくと楽です。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Homebrewの更新</span><span>週1回の基本</span></div>
+          <pre><code>brew update
+brew outdated
+brew upgrade
+brew upgrade --cask
+brew cleanup</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>Rustの更新</span><span>rustup</span></div>
+          <pre><code>rustup update
+rustc --version
+cargo --version</code></pre>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>cargoで入れたCLIの更新例</span><span>必要なものだけ</span></div>
+          <pre><code>cargo install ripgrep --locked
+cargo install cargo-update --locked
+cargo install-update -a</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>cargo install-updateについて:</strong>
+          <code>cargo install</code> で入れたツールをまとめて更新したい場合は、先に <code>cargo install cargo-update --locked</code> で補助ツールを入れます。
+          ただし、最初から必須ではありません。Rust製CLIを複数入れるようになってからで十分です。
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>uvで入れたPythonの確認</span><span>必要に応じて</span></div>
+          <pre><code>uv python list
+uv python install</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>uv本体の更新:</strong>
+          この資料ではuvをHomebrewで入れているため、uv本体は <code>brew upgrade</code> で更新されます。
+          uvで管理しているPythonの追加や確認は、必要なタイミングで <code>uv python list</code> と <code>uv python install</code> を使います。
+        </div>
+      </div>
+    </section>
+
+    <section id="windows-mac">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Windows to Mac</span>
+            <h2>操作の違い早見表</h2>
+          </div>
+          <p class="lead">
+            つまずきやすいポイントだけを先に押さえます。特にEnterキー、アプリ終了、ウィンドウ操作は最初に混乱しやすいです。
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>やりたいこと</th>
+                <th>Windows</th>
+                <th>Mac</th>
+                <th>メモ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ファイルを開く</td>
+                <td><span class="kbd">Enter</span></td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">O</span> またはダブルクリック</td>
+                <td>Macで<span class="kbd">Enter</span>はファイル名変更です。</td>
+              </tr>
+              <tr>
+                <td>ファイル名を変更</td>
+                <td><span class="kbd">F2</span></td>
+                <td><span class="kbd">Enter</span></td>
+                <td>Windows経験者が最初に戸惑う代表例です。</td>
+              </tr>
+              <tr>
+                <td>コピー / 貼り付け</td>
+                <td><span class="kbd">Ctrl</span> + <span class="kbd">C</span> / <span class="kbd">V</span></td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">C</span> / <span class="kbd">V</span></td>
+                <td>MacではCommandキーが主役です。</td>
+              </tr>
+              <tr>
+                <td>アプリ切り替え</td>
+                <td><span class="kbd">Alt</span> + <span class="kbd">Tab</span></td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">Tab</span></td>
+                <td>同じアプリ内の別ウィンドウは <span class="kbd">⌘</span> + <span class="kbd">`</span>。</td>
+              </tr>
+              <tr>
+                <td>アプリを終了</td>
+                <td>右上の×</td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">Q</span></td>
+                <td>赤いボタンは「閉じる」。アプリ自体は残ることがあります。</td>
+              </tr>
+              <tr>
+                <td>強制終了</td>
+                <td>タスクマネージャー</td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">⌥</span> + <span class="kbd">Esc</span></td>
+                <td>アプリ単位で終了できます。</td>
+              </tr>
+              <tr>
+                <td>タスクマネージャー相当</td>
+                <td>タスクマネージャー</td>
+                <td>アクティビティモニタ</td>
+                <td>Spotlightで「アクティビティモニタ」と検索します。</td>
+              </tr>
+              <tr>
+                <td>設定を開く</td>
+                <td>設定 / コントロールパネル</td>
+                <td>システム設定</td>
+                <td>左上Appleメニューから開けます。</td>
+              </tr>
+              <tr>
+                <td>OSを更新する</td>
+                <td>Windows Update</td>
+                <td>システム設定 → 一般 → ソフトウェアアップデート</td>
+                <td>Spotlightで「software update」と検索しても開けます。</td>
+              </tr>
+              <tr>
+                <td>ファイアウォール</td>
+                <td>Windows セキュリティ / Defender Firewall</td>
+                <td>システム設定 → ネットワーク → ファイアウォール</td>
+                <td>主にインバウンド制御です。外向き通信を細かく止める機能ではありません。</td>
+              </tr>
+              <tr>
+                <td>アプリを探す</td>
+                <td>スタートメニュー</td>
+                <td>Spotlight <span class="kbd">⌘</span> + <span class="kbd">Space</span></td>
+                <td>アプリ、ファイル、設定をまとめて検索できます。</td>
+              </tr>
+              <tr>
+                <td>スクリーンショット</td>
+                <td><span class="kbd">PrtSc</span></td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">Shift</span> + <span class="kbd">5</span></td>
+                <td>範囲選択、画面録画もここからできます。</td>
+              </tr>
+              <tr>
+                <td>ファイル管理</td>
+                <td>エクスプローラー</td>
+                <td>Finder</td>
+                <td>パス表示はFinderメニュー「表示」→「パスバーを表示」。</td>
+              </tr>
+              <tr>
+                <td>削除</td>
+                <td><span class="kbd">Delete</span></td>
+                <td><span class="kbd">⌘</span> + <span class="kbd">Delete</span></td>
+                <td>ゴミ箱へ移動します。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="habits">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Practice</span>
+            <h2>30分で慣れる練習</h2>
+          </div>
+          <p class="lead">
+            インストールが終わったら、実際に触って体に入れます。説明を読むより、同じ操作を数回やるほうが早いです。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Finder</span>
+            <h3>ファイルを作る、名前を変える、開く</h3>
+            <p>デスクトップにフォルダを作り、名前変更はEnter、開くのはダブルクリック。違いを体験します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Spotlight</span>
+            <h3>アプリを検索して起動する</h3>
+            <p><span class="kbd">⌘</span> + <span class="kbd">Space</span>でVS Code、Chrome、ターミナル、アクティビティモニタを開きます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Terminal</span>
+            <h3>現在地を見る</h3>
+            <p><code>pwd</code>、<code>ls</code>、<code>cd Downloads</code> を試します。Macのホームディレクトリ感覚をつかみます。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>練習用コマンド</span><span>壊れない確認だけ</span></div>
+          <pre><code>pwd
+ls
+cd Downloads
+pwd
+cd ~</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="trouble">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Trouble Notes</span>
+            <h2>困った時の見方</h2>
+          </div>
+          <p class="lead">
+            エラーは珍しいことではありません。どこで止まったか、何と表示されたかを揃えると、解決がかなり速くなります。
+          </p>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <h3><code>command not found: brew</code></h3>
+            <p>Homebrewの「Next steps」が未実行の可能性があります。ターミナルを開き直す、または表示されたPATH設定を実行します。</p>
+          </article>
+          <article class="card">
+            <h3>インストールが途中で止まった</h3>
+            <p>ネットワーク、プロキシ、管理者権限の可能性があります。エラー画面を消さずに内容を確認します。</p>
+          </article>
+          <article class="card">
+            <h3>アプリが開けない</h3>
+            <p>システム設定 → プライバシーとセキュリティを確認します。出所が分からないアプリは無理に開かず、公式サイトから入手し直します。</p>
+          </article>
+          <article class="card">
+            <h3>何を消してよいか分からない</h3>
+            <p>AppCleanerは便利ですが、セキュリティ製品、同期ツール、よく分からない常駐アプリは削除前に役割を確認します。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="page sources">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.5rem);">参照元</h2>
+      <p>インストールコマンドは、作成時点で公式ドキュメントを確認しています。実施日に再確認するとより安全です。</p>
+      <div class="source-list">
+        <a href="https://brew.sh/">Homebrew</a>
+        <a href="https://www.rust-lang.org/tools/install">Rust</a>
+        <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>
+        <a href="https://go.dev/doc/install">Go</a>
+        <a href="https://code.claude.com/docs/en/setup">Claude Code</a>
+        <a href="https://support.apple.com/guide/mac-help/search-with-spotlight-mchlp1008/mac">Apple Spotlight</a>
+        <a href="https://support.apple.com/guide/mac-help/get-macos-updates-mchlpx1065/mac">macOS Updates</a>
+        <a href="https://support.apple.com/guide/mac-help/block-connections-to-your-mac-with-a-firewall-mh34041/mac">Mac Firewall</a>
+        <a href="https://objective-see.org/products/lulu.html">LuLu</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

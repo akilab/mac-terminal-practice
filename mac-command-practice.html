@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mac Command Practice - Apache Log Analysis</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiNmYmZhZjciLz48cGF0aCBmaWxsPSIjMjI2MzUxIiBkPSJNMzguNSAxMi41YzMuOS00LjYgOS4xLTUuNiA5LjEtNS42cy0uMiA1LjQtNC4yIDkuM2MtMy40IDMuMi03LjUgMy03LjUgM3MtLjctMy44IDIuNi02LjdaIi8+PHBhdGggZmlsbD0iIzhmNDc1MiIgZD0iTTMyIDIyLjFjMy41IDAgNS4xLTIgOC4zLTIgNS43IDAgMTAuMyA1IDEwLjMgMTIuNSAwIDEwLjgtNy41IDIyLTEzLjMgMjItMi43IDAtMy41LTEuNy01LjctMS43LTIuMyAwLTMuMyAxLjctNS45IDEuNy01LjggMC0xMi4zLTEwLjQtMTIuMy0yMC42IDAtOCA0LjktMTMuOCAxMC45LTEzLjggMy4yIDAgNC43IDEuOSA3LjcgMS45WiIvPjxjaXJjbGUgY3g9IjQ5IiBjeT0iMjciIHI9IjciIGZpbGw9IiNmYmZhZjciLz48L3N2Zz4=">
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --terminal: #22242b;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(207, 232, 220, .72), transparent 28rem),
+        radial-gradient(circle at 91% 2%, rgba(233, 183, 189, .56), transparent 24rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 42%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue-dark); }
+    code, pre, input { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr);
+      gap: 44px;
+      align-items: center;
+      padding: 60px 0 44px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint-dark);
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--mint-dark);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 11ch;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(3rem, 7.4vw, 7rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      margin-top: 6px;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2rem, 4.8vw, 4.5rem);
+    }
+
+    h3 { font-size: 1.08rem; }
+
+    .hero-text {
+      max-width: 660px;
+      margin-top: 26px;
+      color: #424650;
+      font-size: clamp(1rem, 1.8vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+    }
+
+    .machine {
+      position: relative;
+      padding: 26px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .54);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .screen {
+      overflow: hidden;
+      border: 12px solid #22242b;
+      border-radius: 22px 22px 8px 8px;
+      background: #fefefe;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f6f1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--rose);
+    }
+
+    .dot:nth-child(2) { background: var(--gold); }
+    .dot:nth-child(3) { background: var(--mint); }
+
+    .terminal {
+      min-height: 318px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(201, 217, 238, .3) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fefdfa 0%, #f8f6f1 100%);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: .84rem;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: var(--rose-dark);
+      font-weight: 800;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .62em;
+      height: 1.1em;
+      margin-left: 3px;
+      vertical-align: -.18em;
+      background: var(--mint-dark);
+      animation: blink 1.1s steps(2, start) infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .base {
+      height: 24px;
+      width: 82%;
+      margin: 0 auto;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(180deg, #dfe2e8, #f5f6f8);
+      box-shadow: 0 16px 30px rgba(34, 38, 48, .11);
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(33, 35, 42, .1);
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(251, 250, 247, .88);
+      backdrop-filter: blur(18px);
+    }
+
+    .toc .page {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .toc a {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .toc a:hover, .toc a:focus-visible {
+      background: var(--mint);
+      outline: none;
+    }
+
+    section {
+      padding: 66px 0;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) minmax(0, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .section-label {
+      color: var(--rose-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card, .note, .command-block, .trainer, .progress-panel, .field-table {
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .67);
+      box-shadow: 0 10px 28px rgba(34, 38, 48, .055);
+    }
+
+    .card { padding: 22px; }
+    .card h3 { margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .note {
+      padding: 20px;
+      background: rgba(207, 232, 220, .36);
+    }
+
+    .note strong { color: var(--mint-dark); }
+
+    .command-block {
+      overflow: hidden;
+      margin: 16px 0;
+      background: var(--terminal);
+      color: #f7f4ed;
+    }
+
+    .command-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      color: #ddd7ca;
+      font-size: .83rem;
+      font-weight: 800;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: .88rem;
+      line-height: 1.65;
+    }
+
+    .field-table {
+      overflow: hidden;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      font-size: .9rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .practice-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .trainer { overflow: hidden; }
+
+    .trainer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(33, 35, 42, .1);
+      background: rgba(241, 239, 232, .72);
+    }
+
+    .trainer-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: baseline;
+      font-weight: 900;
+    }
+
+    .trainer-title code {
+      color: var(--rose-dark);
+      font-size: 1.06rem;
+    }
+
+    .trainer-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .exercise-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid rgba(33, 35, 42, .11);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .exercise-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .exercise-no {
+      color: var(--mint-dark);
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .exercise-card p {
+      margin: 0;
+      color: #424650;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: .92rem;
+    }
+
+    .answer-input:focus {
+      border-color: var(--mint-dark);
+      outline: 3px solid rgba(207, 232, 220, .9);
+    }
+
+    .check-button {
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .check-button:focus-visible, .button:focus-visible {
+      outline: 3px solid rgba(201, 217, 238, .95);
+      outline-offset: 2px;
+    }
+
+    .result {
+      min-height: 1.6em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result.ok { color: var(--mint-dark); font-weight: 900; }
+    .result.ng { color: var(--rose-dark); font-weight: 900; }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .hint code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .progress-panel {
+      position: sticky;
+      top: 72px;
+      padding: 18px;
+    }
+
+    .meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e6e2d9;
+    }
+
+    .meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint-dark), var(--blue-dark));
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .lesson-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .lesson-list a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .lesson-list span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .sources {
+      padding: 34px 0 56px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .section-head, .grid.two, .grid.three, .practice-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .machine { padding: 16px; }
+      .progress-panel { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 24px, 1160px); }
+      .toc .page { width: 100%; padding-left: 12px; }
+      section { padding: 48px 0; }
+      .input-row { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+      .meter span { transition: none; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .toc, .hero-actions, .check-button, .progress-panel { display: none; }
+      section, .hero { break-inside: avoid; padding: 28px 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+  <header class="page hero">
+    <div>
+      <p class="kicker">Mac Command Practice</p>
+      <h1>ログを、パイプで読む。</h1>
+      <p class="hero-text">
+        前回学んだコマンドを組み合わせ、Apacheアクセスログを分析する練習ページです。
+        まずサンプルログをダウンロードし、件数、ステータスコード、アクセス元IP、人気パス、エラー、botアクセスを順番に調べます。
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="#setup">ログを準備する</a>
+        <a class="button secondary" href="#format">ログ形式を見る</a>
+      </div>
+    </div>
+    <div class="machine" aria-label="Apacheログ分析のTerminalイメージ">
+      <div class="screen">
+        <div class="screen-top">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="terminal">
+          <span class="prompt">MacBook-Air %</span> cut -d ' ' -f 9 apache_logs<br>
+          200<br>
+          404<br>
+          200<br><br>
+          <span class="prompt">MacBook-Air %</span> cut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr<br>
+          9126 200<br>
+          445 304<br>
+          213 404<br><br>
+          <span class="prompt">MacBook-Air %</span> grep " 404 " apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="base"></div>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="ページ内目次">
+    <div class="page">
+      <a href="#setup">準備</a>
+      <a href="#format">形式</a>
+      <a href="#practice-root">演習</a>
+      <a href="#finish">仕上げ</a>
+      <a href="#sources">参照元</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="setup">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Download</span>
+            <h2>Apacheログを準備する</h2>
+          </div>
+          <p class="lead">
+            Elasticが公開しているApache combined log形式のサンプルを使います。
+            練習用フォルダを作り、その中に <code>apache_logs</code> という名前で保存します。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Folder</span>
+            <h3>練習場所を作る</h3>
+            <p>前回と同じく、ホームディレクトリ直下の <code>~/practice</code> の中に、ログ分析用フォルダを作ります。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Download</span>
+            <h3><code>curl</code>で取得する</h3>
+            <p><code>-L</code> でリダイレクトをたどり、<code>-o</code> で保存ファイル名を指定します。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Check</span>
+            <h3>行数と先頭を見る</h3>
+            <p>ダウンロードできたら <code>wc -l</code> と <code>head</code> で、ファイルが読める状態か確認します。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>準備コマンド</span><span>Terminalで実行</span></div>
+          <pre><code>mkdir -p ~/practice/apache-log-analysis
+cd ~/practice/apache-log-analysis
+curl -L -o apache_logs "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs"
+wc -l apache_logs
+head -n 3 apache_logs</code></pre>
+        </div>
+
+        <div class="note">
+          <strong>ポイント:</strong>
+          このページの演習は、ファイル名が <code>apache_logs</code> である前提です。
+          別名で保存した場合は、コマンド中のファイル名も置き換えてください。
+        </div>
+      </div>
+    </section>
+
+    <section id="format">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Log Format</span>
+            <h2>ログの列を読む</h2>
+          </div>
+          <p class="lead">
+            Apache combined logは、人間には少し長く見えます。
+            まずは空白区切りでよく使う列だけを覚えます。
+          </p>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>1行の例</span><span>Apache combined log</span></div>
+          <pre><code>83.149.9.216 - - [17/May/2015:10:05:03 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" "Mozilla/5.0 ..."</code></pre>
+        </div>
+
+        <div class="field-table">
+          <table>
+            <thead>
+              <tr><th>空白区切りの位置</th><th>意味</th><th>抜き出し例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1列目</td><td>アクセス元IP</td><td><code>cut -d ' ' -f 1 apache_logs</code></td></tr>
+              <tr><td>4列目</td><td>日時の前半</td><td><code>cut -d ' ' -f 4 apache_logs</code></td></tr>
+              <tr><td>6列目</td><td>HTTPメソッド</td><td><code>cut -d ' ' -f 6 apache_logs</code></td></tr>
+              <tr><td>7列目</td><td>リクエストされたパス</td><td><code>cut -d ' ' -f 7 apache_logs</code></td></tr>
+              <tr><td>9列目</td><td>ステータスコード</td><td><code>cut -d ' ' -f 9 apache_logs</code></td></tr>
+              <tr><td>10列目</td><td>レスポンスサイズ</td><td><code>cut -d ' ' -f 10 apache_logs</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note" style="margin-top:16px;">
+          <strong>注意:</strong>
+          User-Agentには空白が含まれるため、<code>cut -d ' '</code> だけで正確に列として扱うのは難しいです。
+          この教材では、まずIP、パス、ステータスコードの分析に集中します。
+        </div>
+      </div>
+    </section>
+
+    <div id="practice-root"></div>
+
+    <section id="finish">
+      <div class="page">
+        <div class="section-head">
+          <div>
+            <span class="section-label">Final Report</span>
+            <h2>最後に調査メモを作る</h2>
+          </div>
+          <p class="lead">
+            コマンドを覚えるだけでなく、調べた結果をファイルに残すところまでを練習します。
+            実務では、再現できるコマンドと保存された結果があると共有しやすくなります。
+          </p>
+        </div>
+
+        <div class="grid three">
+          <article class="card">
+            <span class="tag">Top IP</span>
+            <h3>アクセス元の上位</h3>
+            <p><code>cut</code>、<code>sort</code>、<code>uniq -c</code>、<code>sort -nr</code>、<code>head</code> をつなぎます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Errors</span>
+            <h3>404と500番台</h3>
+            <p><code>grep</code> で絞り込み、パスを抜き出して、どこでエラーが多いかを見ます。</p>
+          </article>
+          <article class="card">
+            <span class="tag">Save</span>
+            <h3>結果を保存する</h3>
+            <p><code>&gt;</code> で上書き保存、<code>&gt;&gt;</code> で追記保存。調査結果をメモとして残します。</p>
+          </article>
+        </div>
+
+        <div class="command-block">
+          <div class="command-title"><span>仕上げの例</span><span>調査結果を保存</span></div>
+          <pre><code>cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head > top-ip.txt
+grep " 404 " apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head > top-404-path.txt
+grep " 50[0-9] " apache_logs > server-errors.log
+cat top-ip.txt top-404-path.txt > investigation-summary.txt</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="page sources" id="sources">
+      <h2 style="font-size:clamp(1.6rem,3vw,2.5rem);">参照元</h2>
+      <p class="mini">
+        ApacheログのサンプルはElastic examplesリポジトリのApache logsを使います。
+      </p>
+      <p class="mini">
+        <a href="https://github.com/elastic/examples/tree/master/Common%20Data%20Formats/apache_logs">Elastic examples - Apache logs</a><br>
+        <a href="https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs">Raw apache_logs</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    const lessons = [
+      {
+        id: "inspect",
+        label: "First Look",
+        title: "全体像を見る",
+        summary: "ログを全部読もうとせず、head、tail、less、wcで大きさと形を把握します。",
+        sample: "head apache_logs\ntail apache_logs\nless apache_logs\nwc -l apache_logs",
+        exercises: [
+          ["apache_logsの先頭10行を表示してください。", ["head apache_logs", "head -n 10 apache_logs"], "headはデフォルトで10行です。"],
+          ["apache_logsの末尾10行を表示してください。", ["tail apache_logs", "tail -n 10 apache_logs"], "tailもデフォルトで10行です。"],
+          ["apache_logsをlessで開いてください。", ["less apache_logs"], "終了はqです。"],
+          ["行番号付きでapache_logsをlessで開いてください。", ["less -N apache_logs"], "-Nで行番号を表示します。"],
+          ["apache_logsの行数を数えてください。", ["wc -l apache_logs"], "分析対象の件数を把握します。"]
+        ]
+      },
+      {
+        id: "fields",
+        label: "Fields",
+        title: "列を抜き出す",
+        summary: "Apacheログのよく使う列だけをcutで抜き出します。まずheadで少ない行に絞ってからcutし、パイプの順番も意識します。",
+        sample: "head -n 5 apache_logs | cut -d ' ' -f 1\nhead -n 5 apache_logs | cut -d ' ' -f 7\nhead -n 5 apache_logs | cut -d ' ' -f 9\n\n# パイプは左から右へ流れます。\n# headを先に置くと、cutは5行だけ処理します。\n# cut -d ' ' -f 1 apache_logs | head -n 5 でも結果は似ていますが、先にcutが動くため、余分な処理が発生しやすくなります。",
+        exercises: [
+          ["先頭5行だけからアクセス元IPを抜き出してください。", ["head -n 5 apache_logs | cut -d ' ' -f 1", "head -n 5 apache_logs | cut -d \" \" -f 1"], "まずheadで5行にしてからcutします。"],
+          ["先頭5行だけからHTTPメソッドを抜き出してください。", ["head -n 5 apache_logs | cut -d ' ' -f 6", "head -n 5 apache_logs | cut -d \" \" -f 6"], "6列目にGETなどが入ります。"],
+          ["先頭5行だけからリクエストされたパスを抜き出してください。", ["head -n 5 apache_logs | cut -d ' ' -f 7", "head -n 5 apache_logs | cut -d \" \" -f 7"], "7列目がパスです。"],
+          ["先頭5行だけからステータスコードを抜き出してください。", ["head -n 5 apache_logs | cut -d ' ' -f 9", "head -n 5 apache_logs | cut -d \" \" -f 9"], "9列目が200や404です。"],
+          ["先頭5行だけからレスポンスサイズを抜き出してください。", ["head -n 5 apache_logs | cut -d ' ' -f 10", "head -n 5 apache_logs | cut -d \" \" -f 10"], "10列目がバイト数です。"]
+        ]
+      },
+      {
+        id: "status",
+        label: "Status Codes",
+        title: "ステータスコードを集計する",
+        summary: "ログ分析の入口です。200、304、404、500番台がどれくらいあるかをパイプで集計します。",
+        sample: "cut -d ' ' -f 9 apache_logs | sort | uniq -c\ncut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr",
+        exercises: [
+          ["ステータスコードを抜き出し、並べ替えて重複を数えてください。", ["cut -d ' ' -f 9 apache_logs | sort | uniq -c", "cut -d \" \" -f 9 apache_logs | sort | uniq -c"], "cut、sort、uniq -cをつなぎます。"],
+          ["ステータスコード別件数を多い順に表示してください。", ["cut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr", "cut -d \" \" -f 9 apache_logs | sort | uniq -c | sort -nr"], "最後にsort -nrです。"],
+          ["200の行だけを表示してください。", ["grep \" 200 \" apache_logs", "grep ' 200 ' apache_logs"], "前後に空白を入れると誤検出を減らせます。"],
+          ["404の行だけを表示してください。", ["grep \" 404 \" apache_logs", "grep ' 404 ' apache_logs"], "Not Foundの確認です。"],
+          ["500番台の行だけを表示してください。", ["grep \" 50[0-9] \" apache_logs", "grep ' 50[0-9] ' apache_logs"], "50[0-9]で500から509を拾います。"]
+        ]
+      },
+      {
+        id: "ip",
+        label: "Top IP",
+        title: "アクセス元IPを調べる",
+        summary: "IPごとのアクセス数を数え、多い順に並べます。ログ分析で最もよく使うパイプの形です。",
+        sample: "cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head",
+        exercises: [
+          ["アクセス元IPを抜き出し、重複を数えてください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c", "cut -d \" \" -f 1 apache_logs | sort | uniq -c"], "IPを集計します。"],
+          ["アクセス元IPを多い順に表示してください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr", "cut -d \" \" -f 1 apache_logs | sort | uniq -c | sort -nr"], "sort -nrで件数の多い順です。"],
+          ["アクセス元IPの上位10件を表示してください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head", "cut -d \" \" -f 1 apache_logs | sort | uniq -c | sort -nr | head -n 10"], "headはデフォルト10行です。"],
+          ["アクセス元IPの上位20件を表示してください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head -n 20", "cut -d \" \" -f 1 apache_logs | sort | uniq -c | sort -nr | head -n 20"], "head -n 20を使います。"],
+          ["アクセス元IPの上位10件をtop-ip.txtに保存してください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head > top-ip.txt", "cut -d \" \" -f 1 apache_logs | sort | uniq -c | sort -nr | head > top-ip.txt"], "最後にリダイレクトします。"]
+        ]
+      },
+      {
+        id: "path",
+        label: "Popular Paths",
+        title: "よく見られているパスを調べる",
+        summary: "アクセスされたURLパスを集計します。人気ページ、画像、存在しないパスなどが見えてきます。",
+        sample: "cut -d ' ' -f 7 apache_logs | sort | uniq -c | sort -nr | head",
+        exercises: [
+          ["リクエストされたパスを抜き出してください。", ["cut -d ' ' -f 7 apache_logs", "cut -d \" \" -f 7 apache_logs"], "7列目です。"],
+          ["パス別の件数を数えてください。", ["cut -d ' ' -f 7 apache_logs | sort | uniq -c", "cut -d \" \" -f 7 apache_logs | sort | uniq -c"], "パスごとに集計します。"],
+          ["パス別件数を多い順に表示してください。", ["cut -d ' ' -f 7 apache_logs | sort | uniq -c | sort -nr", "cut -d \" \" -f 7 apache_logs | sort | uniq -c | sort -nr"], "人気パスが上に来ます。"],
+          ["パス別件数の上位10件を表示してください。", ["cut -d ' ' -f 7 apache_logs | sort | uniq -c | sort -nr | head", "cut -d \" \" -f 7 apache_logs | sort | uniq -c | sort -nr | head -n 10"], "headで絞ります。"],
+          ["パス別件数の上位10件をtop-path.txtに保存してください。", ["cut -d ' ' -f 7 apache_logs | sort | uniq -c | sort -nr | head > top-path.txt", "cut -d \" \" -f 7 apache_logs | sort | uniq -c | sort -nr | head > top-path.txt"], "調査結果を保存します。"]
+        ]
+      },
+      {
+        id: "errors",
+        label: "Errors",
+        title: "エラーを調べる",
+        summary: "404や500番台を抽出し、どのパスでエラーが多いかを調べます。",
+        sample: "grep \" 404 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head",
+        exercises: [
+          ["404の行数を数えてください。", ["grep \" 404 \" apache_logs | wc -l", "grep ' 404 ' apache_logs | wc -l"], "grep結果をwc -lに渡します。"],
+          ["404のパスを抜き出してください。", ["grep \" 404 \" apache_logs | cut -d ' ' -f 7", "grep ' 404 ' apache_logs | cut -d ' ' -f 7", "grep \" 404 \" apache_logs | cut -d \" \" -f 7"], "404行だけにしてからパスを抜きます。"],
+          ["404が多いパス上位10件を表示してください。", ["grep \" 404 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head", "grep ' 404 ' apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head"], "エラーの多いパスを探します。"],
+          ["500番台の行数を数えてください。", ["grep \" 50[0-9] \" apache_logs | wc -l", "grep ' 50[0-9] ' apache_logs | wc -l"], "500番台はサーバー側エラーです。"],
+          ["500番台の行をserver-errors.logに保存してください。", ["grep \" 50[0-9] \" apache_logs > server-errors.log", "grep ' 50[0-9] ' apache_logs > server-errors.log"], "エラー行を保存します。"]
+        ]
+      },
+      {
+        id: "clients",
+        label: "Clients",
+        title: "botやクライアントを見る",
+        summary: "User-Agentは空白が多いためcutでは扱いにくいですが、grepでbotらしいアクセスを探すことはできます。",
+        sample: "grep -i bot apache_logs\ngrep -i crawler apache_logs\ngrep -i google apache_logs",
+        exercises: [
+          ["botを含む行を大文字小文字を無視して検索してください。", ["grep -i bot apache_logs"], "-iで大文字小文字を無視します。"],
+          ["crawlerを含む行を大文字小文字を無視して検索してください。", ["grep -i crawler apache_logs"], "クローラーの痕跡を探します。"],
+          ["googleを含む行を大文字小文字を無視して検索してください。", ["grep -i google apache_logs"], "検索エンジン系のアクセスを探します。"],
+          ["botを含む行数を数えてください。", ["grep -i bot apache_logs | wc -l"], "grepをwc -lにつなぎます。"],
+          ["botを含む行をbot-access.logに保存してください。", ["grep -i bot apache_logs > bot-access.log"], "結果を保存します。"]
+        ]
+      },
+      {
+        id: "reports",
+        label: "Reports",
+        title: "結果を保存する",
+        summary: "分析結果をファイルに残します。上書き保存と追記保存を使い分けます。",
+        sample: "cut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr > status-report.txt\ncat top-ip.txt >> investigation-summary.txt",
+        exercises: [
+          ["ステータスコード別件数をstatus-report.txtに保存してください。", ["cut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr > status-report.txt", "cut -d \" \" -f 9 apache_logs | sort | uniq -c | sort -nr > status-report.txt"], ">で上書き保存します。"],
+          ["IP上位10件をinvestigation-summary.txtに保存してください。", ["cut -d ' ' -f 1 apache_logs | sort | uniq -c | sort -nr | head > investigation-summary.txt", "cut -d \" \" -f 1 apache_logs | sort | uniq -c | sort -nr | head > investigation-summary.txt"], "最初の結果を書き込みます。"],
+          ["404が多いパス上位10件をinvestigation-summary.txtへ追記してください。", ["grep \" 404 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head >> investigation-summary.txt", "grep ' 404 ' apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head >> investigation-summary.txt"], ">>で追記します。"],
+          ["作成したtxtファイルを一覧してください。", ["ls *.txt"], "結果ファイルを確認します。"],
+          ["investigation-summary.txtの中身を表示してください。", ["cat investigation-summary.txt"], "保存した結果を読みます。"]
+        ]
+      },
+      {
+        id: "final",
+        label: "Final Drill",
+        title: "自力で組み合わせる",
+        summary: "最後は目的からコマンドを組み立てます。調査の問いを、パイプラインに変換します。",
+        sample: "grep \" 404 \" apache_logs | cut -d ' ' -f 1 | sort | uniq -c | sort -nr | head",
+        exercises: [
+          ["404を出しているIPの上位10件を表示してください。", ["grep \" 404 \" apache_logs | cut -d ' ' -f 1 | sort | uniq -c | sort -nr | head", "grep ' 404 ' apache_logs | cut -d ' ' -f 1 | sort | uniq -c | sort -nr | head"], "404に絞ってからIPを集計します。"],
+          ["200のパス上位10件を表示してください。", ["grep \" 200 \" apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head", "grep ' 200 ' apache_logs | cut -d ' ' -f 7 | sort | uniq -c | sort -nr | head"], "正常アクセスの人気パスです。"],
+          ["GET以外の行を検索してください。", ["grep -v \"\\\"GET \" apache_logs", "grep -v '\"GET ' apache_logs"], "-vで一致しない行を表示します。"],
+          ["画像ファイルへのアクセスを検索してください。", ["grep -i \"\\.png\\|\\.jpg\\|\\.gif\" apache_logs", "grep -i '\\.png\\|\\.jpg\\|\\.gif' apache_logs"], "基本grepのORは\\|で書けます。"],
+          ["ステータスコード別件数の上位をfinal-status.txtに保存してください。", ["cut -d ' ' -f 9 apache_logs | sort | uniq -c | sort -nr | head > final-status.txt", "cut -d \" \" -f 9 apache_logs | sort | uniq -c | sort -nr | head > final-status.txt"], "最後の調査結果として保存します。"]
+        ]
+      }
+    ];
+
+    const root = document.querySelector("#practice-root");
+    const solved = new Set();
+    const total = lessons.reduce((sum, lesson) => sum + lesson.exercises.length, 0);
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(value) {
+      return value.trim().replace(/\s+/g, " ");
+    }
+
+    function lessonProgress(lesson) {
+      return lesson.exercises.filter((_, index) => solved.has(`${lesson.id}-${index}`)).length;
+    }
+
+    function updateProgress() {
+      const done = solved.size;
+      const percent = Math.round((done / total) * 100);
+      document.querySelectorAll("[data-total-progress]").forEach((element) => {
+        element.textContent = `${done} / ${total}問 正解`;
+      });
+      document.querySelectorAll("[data-total-meter]").forEach((element) => {
+        element.style.width = `${percent}%`;
+      });
+      lessons.forEach((lesson) => {
+        const count = lessonProgress(lesson);
+        document.querySelectorAll(`[data-lesson-progress="${lesson.id}"]`).forEach((element) => {
+          element.textContent = `${count} / ${lesson.exercises.length}`;
+        });
+      });
+    }
+
+    function makeExercises(lesson) {
+      return lesson.exercises.map(([question, answers, hint], index) => {
+        const answerText = answers.length === 1 ? answers[0] : answers.slice(0, 2).join(" または ");
+        return `
+          <article class="exercise-card" data-exercise="${lesson.id}-${index}">
+            <div class="exercise-head">
+              <span class="exercise-no">${lesson.label} ${String(index + 1).padStart(2, "0")}</span>
+              <span class="mini">例: <code>${escapeHtml(answerText)}</code></span>
+            </div>
+            <p>${escapeHtml(question)}</p>
+            <div class="input-row">
+              <input class="answer-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="${escapeHtml(lesson.title)}の練習${index + 1}" data-answers="${escapeHtml(JSON.stringify(answers))}" placeholder="$ ">
+              <button class="check-button" type="button">確認</button>
+            </div>
+            <p class="result" aria-live="polite"></p>
+            <p class="hint">ヒント: ${escapeHtml(hint)}</p>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      root.innerHTML = lessons.map((lesson, lessonIndex) => `
+        <section id="lesson-${lesson.id}">
+          <div class="page">
+            <div class="section-head">
+              <div>
+                <span class="section-label">${escapeHtml(lesson.label)}</span>
+                <h2>${escapeHtml(lesson.title)}</h2>
+              </div>
+              <p class="lead">${escapeHtml(lesson.summary)}</p>
+            </div>
+
+            <div class="practice-layout">
+              <div>
+                <div class="command-block">
+                  <div class="command-title"><span>入力例</span><span>${escapeHtml(lesson.label)}</span></div>
+                  <pre><code>${escapeHtml(lesson.sample)}</code></pre>
+                </div>
+
+                <div class="trainer">
+                  <div class="trainer-top">
+                    <div class="trainer-title">
+                      <code>${escapeHtml(lesson.id)}</code>
+                      <span>${lesson.exercises.length}問</span>
+                    </div>
+                    <span class="mini">この章: <strong data-lesson-progress="${lesson.id}">0 / ${lesson.exercises.length}</strong></span>
+                  </div>
+                  <div class="trainer-body">
+                    ${makeExercises(lesson)}
+                  </div>
+                </div>
+              </div>
+
+              <aside class="progress-panel" aria-label="練習進捗">
+                <h3>進捗</h3>
+                <div class="meter" aria-hidden="true"><span data-total-meter></span></div>
+                <p class="progress-text" data-total-progress>0 / ${total}問 正解</p>
+                <p class="mini">正解したら、同じコマンドをTerminalでも実行し、出力を見比べます。</p>
+                <div class="lesson-list">
+                  ${lessons.map((item) => `
+                    <a href="#lesson-${item.id}"><code>${escapeHtml(item.label)}</code><span data-lesson-progress="${item.id}">0 / ${item.exercises.length}</span></a>
+                  `).join("")}
+                </div>
+                <div class="hero-actions" style="margin-top:16px;">
+                  ${lessonIndex > 0 ? `<a class="button secondary" href="#lesson-${lessons[lessonIndex - 1].id}">前へ</a>` : `<a class="button secondary" href="#format">形式へ</a>`}
+                  ${lessonIndex < lessons.length - 1 ? `<a class="button" href="#lesson-${lessons[lessonIndex + 1].id}">次へ</a>` : `<a class="button" href="#finish">仕上げへ</a>`}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `).join("");
+
+      document.querySelectorAll(".exercise-card").forEach((card) => {
+        const input = card.querySelector(".answer-input");
+        const button = card.querySelector(".check-button");
+        const result = card.querySelector(".result");
+        const key = card.dataset.exercise;
+
+        function check() {
+          const answers = JSON.parse(input.dataset.answers).map(normalize);
+          const value = normalize(input.value);
+          if (answers.includes(value)) {
+            solved.add(key);
+            card.style.borderColor = "rgba(34, 99, 81, .45)";
+            result.textContent = "OKです。実際のTerminalでも実行して、出力を確認しましょう。";
+            result.className = "result ok";
+          } else {
+            result.textContent = "もう一度。パイプ、引用符、スペース、ファイル名を確認してください。";
+            result.className = "result ng";
+          }
+          updateProgress();
+        }
+
+        button.addEventListener("click", check);
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            check();
+          }
+        });
+      });
+
+      updateProgress();
+    }
+
+    render();
+  </script>
+</body>
+</html>
