@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Overview Slides</title>
+  <style>
+    :root {
+      --ink: #21232a;
+      --muted: #69707d;
+      --line: #d9dde7;
+      --paper: #fbfaf7;
+      --soft: #f1efe8;
+      --mint: #cfe8dc;
+      --mint-dark: #226351;
+      --rose: #e9b7bd;
+      --rose-dark: #8f4752;
+      --blue: #c9d9ee;
+      --blue-dark: #334c7a;
+      --gold: #e8cf8d;
+      --shadow: 0 18px 45px rgba(34, 38, 48, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 6%, rgba(201, 217, 238, .7), transparent 28rem),
+        radial-gradient(circle at 93% 4%, rgba(207, 232, 220, .65), transparent 26rem),
+        linear-gradient(180deg, #fffdf9 0%, var(--paper) 46%, #f5f3ee 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.7;
+    }
+
+    a { color: var(--blue-dark); }
+    button { font-family: inherit; }
+
+    .home-link {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(251, 250, 247, .9);
+      color: var(--ink);
+      box-shadow: 0 10px 24px rgba(34, 38, 48, .08);
+      backdrop-filter: blur(14px);
+      font-size: .86rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1840px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 72px 0 24px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 14px;
+      color: var(--blue-dark);
+      font-size: .82rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 36px;
+      height: 2px;
+      background: var(--blue-dark);
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(2.6rem, 6vw, 5.8rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #424650;
+      font-size: 1.04rem;
+    }
+
+    .deck {
+      padding: 24px 0 46px;
+    }
+
+    .slide-shell {
+      overflow: hidden;
+      border: 1px solid rgba(33, 35, 42, .12);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .68);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .slide-top {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 245, 239, .9);
+    }
+
+    .slide-title {
+      min-width: 0;
+    }
+
+    .slide-title strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .98rem;
+    }
+
+    .slide-title span {
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 700;
+    }
+
+    .counter {
+      display: inline-flex;
+      min-width: 76px;
+      justify-content: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 900;
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) 52px;
+      align-items: center;
+      gap: 0;
+      padding: 12px;
+      background: #f7f6f1;
+    }
+
+    .slide-frame {
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(33, 35, 42, .1);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .slide-image {
+      display: block;
+      width: 100%;
+      max-width: 1672px;
+      height: auto;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .nav-button {
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--ink);
+      font-size: 1.5rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(34, 38, 48, .08);
+    }
+
+    .nav-button:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 16px 18px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, .62);
+    }
+
+    .dot {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(33, 35, 42, .18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .dot[aria-current="true"] {
+      background: var(--blue-dark);
+      color: #fff;
+    }
+
+    .hint {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    footer {
+      padding: 24px 0 38px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .home-link {
+        left: 12px;
+        right: auto;
+      }
+
+      header { padding-top: 78px; }
+
+      .stage {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        gap: 14px;
+      }
+
+      .slide-frame { min-height: 260px; }
+
+      .slide-image { height: auto; max-height: 68vh; }
+
+      .nav-button {
+        width: 100%;
+        height: 42px;
+        border-radius: var(--radius);
+      }
+
+      #prevButton { order: 2; }
+      #nextButton { order: 3; }
+    }
+  </style>
+</head>
+<body>
+  <a class="home-link" href="index.html">学習ガイドへ</a>
+
+  <header class="page">
+    <p class="kicker">Appendix Slides</p>
+    <h1>GitHubをざっくり理解する。</h1>
+    <p class="lead">
+      GitHubの背景や位置づけを、画像スライドで確認する番外編です。左右ボタン、下の番号、キーボードの左右キーで移動できます。
+    </p>
+  </header>
+
+  <main class="deck">
+    <div class="page">
+      <section class="slide-shell" aria-label="GitHub overview slide deck">
+        <div class="slide-top">
+          <div class="slide-title">
+            <strong id="slideTitle">Gitとは</strong>
+            <span id="slideFile">1_Gitとは.png</span>
+          </div>
+          <span class="counter" id="counter">1 / 7</span>
+        </div>
+
+        <div class="stage">
+          <button class="nav-button" id="prevButton" type="button" aria-label="前のスライド">‹</button>
+          <div class="slide-frame">
+            <img class="slide-image" id="slideImage" src="images/1_Gitとは.png" alt="Gitとは">
+          </div>
+          <button class="nav-button" id="nextButton" type="button" aria-label="次のスライド">›</button>
+        </div>
+
+        <div class="dots" id="dots" aria-label="スライド番号"></div>
+      </section>
+      <p class="hint">キーボード操作: 左右キーで移動できます。</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="page">
+      <p>Mac Terminal Practice Appendix / GitHub overview slide viewer.</p>
+    </div>
+  </footer>
+
+  <script>
+    const slides = [
+      { file: "1_Gitとは.png", title: "Gitとは" },
+      { file: "2_無かった時代.png", title: "無かった時代" },
+      { file: "3_バージョン管理の登場.png", title: "バージョン管理の登場" },
+      { file: "4_メインラインブランチマージ.png", title: "メインライン・ブランチ・マージ" },
+      { file: "5_Gitの登場.png", title: "Gitの登場" },
+      { file: "6_GitHubの登場.png", title: "GitHubの登場" },
+      { file: "7_GitLabの登場.png", title: "GitLabの登場" },
+    ];
+
+    let currentIndex = 0;
+
+    const slideTitle = document.getElementById("slideTitle");
+    const slideFile = document.getElementById("slideFile");
+    const slideImage = document.getElementById("slideImage");
+    const counter = document.getElementById("counter");
+    const dots = document.getElementById("dots");
+    const prevButton = document.getElementById("prevButton");
+    const nextButton = document.getElementById("nextButton");
+
+    function renderDots() {
+      dots.innerHTML = "";
+      slides.forEach((slide, index) => {
+        const button = document.createElement("button");
+        button.className = "dot";
+        button.type = "button";
+        button.textContent = String(index + 1);
+        button.setAttribute("aria-label", `${index + 1}枚目: ${slide.title}`);
+        button.addEventListener("click", () => showSlide(index));
+        dots.appendChild(button);
+      });
+    }
+
+    function showSlide(index) {
+      currentIndex = (index + slides.length) % slides.length;
+      const slide = slides[currentIndex];
+
+      slideTitle.textContent = slide.title;
+      slideFile.textContent = slide.file;
+      slideImage.src = `images/${slide.file}`;
+      slideImage.alt = slide.title;
+      counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+
+      dots.querySelectorAll(".dot").forEach((dot, dotIndex) => {
+        dot.setAttribute("aria-current", dotIndex === currentIndex ? "true" : "false");
+      });
+    }
+
+    prevButton.addEventListener("click", () => showSlide(currentIndex - 1));
+    nextButton.addEventListener("click", () => showSlide(currentIndex + 1));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        showSlide(currentIndex - 1);
+      }
+      if (event.key === "ArrowRight") {
+        showSlide(currentIndex + 1);
+      }
+    });
+
+    renderDots();
+    showSlide(0);
+  </script>
+</body>
+</html>
